@@ -16,9 +16,10 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('phone')->nullable();
-            $table->string('Utm_source')->nullable();
-            $table->string('Utm_medium')->nullable();
-            $table->string('Utm_campaign')->nullable();
+            $table->string('utm_source')->nullable();
+            $table->string('utm_medium')->nullable();
+            $table->string('utm_campaign')->nullable();
+            $table->boolean('is_private')->default(false);
             $table->timestamps();
         });
     }
