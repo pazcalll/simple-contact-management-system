@@ -9,7 +9,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ref, reactive } from 'vue'
+import { usePage } from '@inertiajs/vue3';
+import { TPagination, TUser } from '@/types/custom';
+import TablePagination from '@/components/custom/TablePagination.vue';
 
+const props = defineProps<{users: TPagination<TUser[]>}>()
 </script>
 
 <template>
@@ -38,14 +42,19 @@ import { ref, reactive } from 'vue'
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow>
-                                <TableCell>John</TableCell>
-                                <TableCell>Doe</TableCell>
-                                <TableCell>Admin</TableCell>
-                                <TableCell>Admin</TableCell>
+                            <TableRow v-for="user in users.data" :key="user.id">
+                                <TableCell>{{ user.name }}</TableCell>
+                                <TableCell>{{ user.email }}</TableCell>
+                                <TableCell>{{ user.roles[0].name }}</TableCell>
+                                <TableCell>{{ user.mobile_number }}</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
+                    <div class="w-full flex justify-center">
+                        <div class="max-w-[14rem] w-full">
+                            <TablePagination :pagination="props.users" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
