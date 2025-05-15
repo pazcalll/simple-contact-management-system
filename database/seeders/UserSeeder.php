@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -13,6 +14,11 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         //
+        $staffs = User::factory()->count(20)->create();
+        foreach ($staffs as $key => $staff) {
+            $staff->assignRole(Role::ROLE_STAFF);
+        }
+
         $users = [
             [
                 'name' => 'admin',

@@ -39,5 +39,13 @@ class HierarchySeeder extends Seeder
         foreach ($hierarchies as $hierarchy) {
             Hierarchy::create($hierarchy);
         }
+
+        $staffs = User::role(Role::ROLE_STAFF)->get();
+        foreach ($staffs as $key => $staff) {
+            Hierarchy::create([
+                'upline_id' => $teamLeader->id,
+                'downline_id' => $staff->id
+            ]);
+        }
     }
 }
