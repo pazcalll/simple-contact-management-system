@@ -11,18 +11,26 @@ import {
 import { ref } from 'vue'
 import { TPagination, TUser } from '@/types/custom';
 import TablePagination, { handleNext, handlePrev } from '@/components/custom/TablePagination.vue';
+import Button from '@/components/ui/button/Button.vue';
+import { UserIcon } from 'lucide-vue-next';
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps<{users: TPagination<TUser[]>}>()
 
 const pagination = ref(props.users);
 const next = () => handleNext({pagination: pagination, endpoint: '/admins/users'});
 const prev = () => handlePrev({pagination: pagination, endpoint: '/admins/users'});
+
+const handleAddUser = (e: Event) => {
+    e.preventDefault()
+    router.visit('/admins/users/create');
+}
 </script>
 
 <template>
     <AppLayout>
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <div class="grid auto-rows-min gap-4 md:grid-cols-3">
+            <div class="grid auto-rows-min gap-4 md:grid-cols-6">
                 <!-- <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                     <PlaceholderPattern />
                 </div>
@@ -32,6 +40,7 @@ const prev = () => handlePrev({pagination: pagination, endpoint: '/admins/users'
                 <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                     <PlaceholderPattern />
                 </div> -->
+                <Button @click="handleAddUser"><UserIcon></UserIcon>Add User</Button>
             </div>
             <div class="relative min-h-[100vh] flex-1 md:min-h-min">
                 <div class="border rounded-lg w-full">

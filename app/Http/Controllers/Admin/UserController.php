@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admins\StoreUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -27,14 +28,22 @@ class UserController extends Controller
     public function create()
     {
         //
+        return Inertia::render('admins/AddUser');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
         //
+        $validated = $request->validated();
+        $validated['password'] = bcrypt($validated['password']);
+        unset($validated['password_confirmation']);
+
+        $user = User::create($validated);
+
+        return redirect()->back()->with('user', $user);
     }
 
     /**
