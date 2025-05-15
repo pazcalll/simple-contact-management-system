@@ -8,12 +8,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ref, reactive } from 'vue'
-import { usePage } from '@inertiajs/vue3';
+import { ref } from 'vue'
 import { TPagination, TUser } from '@/types/custom';
-import TablePagination from '@/components/custom/TablePagination.vue';
+import TablePagination, { handleNext, handlePrev } from '@/components/custom/TablePagination.vue';
 
 const props = defineProps<{users: TPagination<TUser[]>}>()
+
+const pagination = ref(props.users);
+const next = () => handleNext({pagination: pagination, endpoint: '/admins/users'});
+const prev = () => handlePrev({pagination: pagination, endpoint: '/admins/users'});
 </script>
 
 <template>
@@ -52,7 +55,16 @@ const props = defineProps<{users: TPagination<TUser[]>}>()
                     </Table>
                     <div class="w-full flex justify-center">
                         <div class="max-w-[14rem] w-full">
-                            <TablePagination :pagination="props.users" />
+                            <TablePagination
+                                :current_page="pagination.current_page"
+                                :last_page="pagination.last_page"
+                                :per_page="pagination.per_page"
+                                :next="next"
+                                :prev="prev"
+                                @update:current_page="pagination.current_page = $event"
+                                @update:per_page="pagination.per_page = $event"
+                                @update:last_page="pagination.last_page = $event"
+                            />
                         </div>
                     </div>
                 </div>
