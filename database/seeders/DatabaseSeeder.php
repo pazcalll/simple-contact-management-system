@@ -24,7 +24,6 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             LeadStatusSeeder::class,
-            HierarchySeeder::class,
         ]);
     }
 }

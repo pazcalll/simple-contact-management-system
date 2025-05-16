@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class UserSeeder extends Seeder
 {
@@ -14,11 +15,6 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         //
-        $staffs = User::factory()->count(20)->create();
-        foreach ($staffs as $key => $staff) {
-            $staff->assignRole(Role::ROLE_STAFF);
-        }
-
         $users = [
             [
                 'name' => 'admin',
@@ -26,20 +22,7 @@ class UserSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'email_verified_at' => now(),
                 'role' => 'admin',
-            ],
-            [
-                'name' => 'team leader',
-                'email' => 'team-leader@trash-mail.com',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
-                'role' => 'team-leader',
-            ],
-            [
-                'name' => 'supervisor',
-                'email' => 'supervisor@trash-mail.com',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
-                'role' => 'supervisor',
+                'upline_id' => null,
             ],
             [
                 'name' => 'manager',
@@ -47,6 +30,23 @@ class UserSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'email_verified_at' => now(),
                 'role' => 'manager',
+                'upline_id' => null,
+            ],
+            [
+                'name' => 'supervisor',
+                'email' => 'supervisor@trash-mail.com',
+                'password' => bcrypt('password'),
+                'email_verified_at' => now(),
+                'role' => 'supervisor',
+                'upline_id' => 2,
+            ],
+            [
+                'name' => 'team leader',
+                'email' => 'team-leader@trash-mail.com',
+                'password' => bcrypt('password'),
+                'email_verified_at' => now(),
+                'role' => 'team-leader',
+                'upline_id' => 3,
             ],
             [
                 'name' => 'staff',
@@ -54,6 +54,7 @@ class UserSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'email_verified_at' => now(),
                 'role' => 'staff',
+                'upline_id' => 4,
             ],
         ];
 
@@ -62,6 +63,14 @@ class UserSeeder extends Seeder
             unset($user['role']);
             $user = User::create($user);
             $user->assignRole($role);
+        }
+
+        $staffs = User::factory()
+            ->state(['upline_id' => 4])
+            ->count(20)
+            ->create();
+        foreach ($staffs as $key => $staff) {
+            $staff->assignRole(Role::ROLE_STAFF);
         }
     }
 }
