@@ -9,13 +9,17 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ref } from 'vue'
-import { TPagination, TUser } from '@/types/custom';
+import { TFlash, TPagination, TUser } from '@/types/custom';
 import TablePagination, { handleNext, handlePrev } from '@/components/custom/TablePagination.vue';
 import Button from '@/components/ui/button/Button.vue';
 import { UserIcon } from 'lucide-vue-next';
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
+import Alert from '@/components/ui/alert/Alert.vue';
+import AlertTitle from '@/components/ui/alert/AlertTitle.vue';
+import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
 
 const props = defineProps<{users: TPagination<TUser[]>}>()
+const page = usePage<TFlash>();
 
 const pagination = ref(props.users);
 const next = () => handleNext({pagination: pagination, endpoint: '/admins/users'});
@@ -30,6 +34,12 @@ const handleAddUser = (e: Event) => {
 <template>
     <AppLayout>
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <Alert v-if="page.props.flash.success" class="bg-green-500">
+                <AlertTitle class="text-white">Success</AlertTitle>
+                <AlertDescription class="text-white">
+                    {{ page.props.flash.success }}
+                </AlertDescription>
+            </Alert>
             <div class="grid auto-rows-min gap-4 md:grid-cols-6">
                 <!-- <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                     <PlaceholderPattern />
@@ -57,7 +67,7 @@ const handleAddUser = (e: Event) => {
                             <TableRow v-for="user in users.data" :key="user.id">
                                 <TableCell>{{ user.name }}</TableCell>
                                 <TableCell>{{ user.email }}</TableCell>
-                                <TableCell>{{ user.roles[0].name }}</TableCell>
+                                <TableCell>{{ user.roles[0]?.name }}</TableCell>
                                 <TableCell>{{ user.mobile_number }}</TableCell>
                             </TableRow>
                         </TableBody>

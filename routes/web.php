@@ -13,7 +13,7 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::prefix('admins')->middleware(['role:'.Role::ROLE_ADMIN])->group(function () {
+Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])->group(function () {
     Route::resource('users', Admin\UserController::class);
 });
 

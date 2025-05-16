@@ -34,3 +34,10 @@ type TPagination<T> = {
     to: number,
     total: number,
 }
+
+type TFlash = {
+    flash: {
+        success?: string,
+        error?: string,
+    }
+}
