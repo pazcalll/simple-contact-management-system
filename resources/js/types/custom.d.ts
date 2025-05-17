@@ -18,7 +18,7 @@ type TRole = {
 
 type TUser = User & {
     roles: TRole[],
-    mobile_number: string,
+    mobile: string,
 }
 
 type TPagination<T> = {
