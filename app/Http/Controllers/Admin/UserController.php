@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admins\StoreUserRequest;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -29,7 +29,10 @@ class UserController extends Controller
     public function create()
     {
         //
-        return Inertia::render('admins/AddUser');
+        $roles = Role::with('upline')->get();
+        return Inertia::render('admins/AddUser', [
+            'roles' => $roles,
+        ]);
     }
 
     /**
@@ -42,7 +45,10 @@ class UserController extends Controller
         $validated['password'] = bcrypt($validated['password']);
         unset($validated['password_confirmation']);
 
-        User::create($validated);
+        $role = Role::find($validated['role_id']);
+
+        $user = User::create($validated);
+        $user->assignRole($role);
 
         return redirect()->route('admins.users.index')->with('success', 'User data has been created');
     }
@@ -77,5 +83,11 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function getUsersByRole(Role $role)
+    {
+        $users = User::role($role->name)->get();
+        return response()->json(['data' => $users]);
     }
 }

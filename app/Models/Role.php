@@ -22,4 +22,9 @@ class Role extends SpatieRole
         self::ROLE_TEAM_LEADER,
         self::ROLE_STAFF,
     ];
+
+    public function upline()
+    {
+        return $this->belongsTo(Role::class);
+    }
 }

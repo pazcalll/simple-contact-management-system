@@ -8,10 +8,12 @@ type TLink = {
 
 type TRole = {
     id: number,
+    upline_id: number,
     name: string,
     guard_name: string,
     created_at: string,
     updated_at: string,
+    upline?: TRole,
 }
 
 type TUser = User & {

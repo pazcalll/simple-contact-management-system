@@ -14,6 +14,9 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])->group(function () {
+    Route::prefix('json')->name('json')->group(function () {
+        Route::get('users/get-users-by-role/{role}', [Admin\UserController::class, 'getUsersByRole']);
+    });
     Route::resource('users', Admin\UserController::class);
 });
 
