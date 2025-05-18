@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\LeadStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,11 +16,12 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('phone')->nullable();
+            $table->string('mobile_number')->nullable();
             $table->string('utm_source')->nullable();
             $table->string('utm_medium')->nullable();
             $table->string('utm_campaign')->nullable();
             $table->boolean('is_private')->default(false);
+            $table->foreignIdFor(LeadStatus::class)->constrained();
             $table->timestamps();
         });
     }

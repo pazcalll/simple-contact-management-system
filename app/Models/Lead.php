@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Lead extends Model
 {
     //
+    use HasFactory;
+
     protected $fillable = [
         'name',
         'email',
@@ -24,5 +27,10 @@ class Lead extends Model
     public function getSourceAttribute()
     {
         return $this->gtm_source . ' ' . $this->gtm_medium . ' ' . $this->gtm_campaign;
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'assignees');
     }
 }
