@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TablePagination, { handleNext, handlePrev } from '@/components/custom/TablePagination.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Select from '@/components/ui/select/Select.vue';
 import SelectContent from '@/components/ui/select/SelectContent.vue';
@@ -20,10 +21,12 @@ import { usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 const page = usePage();
-const leads = ref<TLead[]>();
+const pagination = ref<TPagination<TLead[]>>(page?.props?.leads as TPagination<TLead[]>);
 const leadStatuses = ref<TLeadStatus[]>(page.props.leadStatuses as TLeadStatus[]);
-leads.value = (page.props?.leads as TPagination<TLead[]>)?.data ?? [];
-console.log(page.props.leads)
+
+const next = () => handleNext({pagination: pagination, endpoint: '/admins/leads'});
+const prev = () => handlePrev({pagination: pagination, endpoint: '/admins/leads'});
+console.log(pagination)
 </script>
 
 <template>
@@ -42,11 +45,11 @@ console.log(page.props.leads)
                             <TableHead>Mobile</TableHead>
                             <TableHead>Email</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead>Is Private</TableHead>
+                            <TableHead>Ownership</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="lead in leads" v-bind:key="lead?.id">
+                        <TableRow v-for="lead in pagination.data" v-bind:key="lead?.id">
                             <TableCell>
                                 {{ lead.name }}
                             </TableCell>
@@ -76,6 +79,20 @@ console.log(page.props.leads)
                         </TableRow>
                     </TableBody>
                 </Table>
+                <div class="w-full flex justify-center">
+                    <div class="max-w-[14rem] w-full">
+                        <TablePagination
+                            :current_page="pagination.current_page"
+                            :last_page="pagination.last_page"
+                            :per_page="pagination.per_page"
+                            :next="next"
+                            :prev="prev"
+                            @update:current_page="pagination.current_page = $event"
+                            @update:per_page="pagination.per_page = $event"
+                            @update:last_page="pagination.last_page = $event"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     </AppLayout>
