@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Authorized\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admins\StoreUserRequest;
@@ -18,7 +18,7 @@ class UserController extends Controller
     {
         //
         $users = User::latest()->with('roles')->paginate();
-        return Inertia::render('admins/Users', [
+        return Inertia::render('authorized/admin/Users', [
             'users' => $users,
         ]);
     }
@@ -30,7 +30,7 @@ class UserController extends Controller
     {
         //
         $roles = Role::with('upline')->get();
-        return Inertia::render('admins/AddUser', [
+        return Inertia::render('authorized/admin/AddUser', [
             'roles' => $roles,
         ]);
     }

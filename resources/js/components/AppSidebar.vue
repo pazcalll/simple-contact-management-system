@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { LayoutGrid, PersonStanding } from 'lucide-vue-next';
+import { CircleUserRound, LayoutGrid, PersonStanding } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -18,7 +18,12 @@ const mainNavItems: NavItem[] = [
         title: 'Users',
         href: '/admins/users',
         icon: PersonStanding,
-    }
+    },
+    {
+        title: 'Leads',
+        href: '/admins/leads',
+        icon: CircleUserRound,
+    },
 ];
 
 const footerNavItems: NavItem[] = [

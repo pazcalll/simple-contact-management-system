@@ -43,3 +43,27 @@ type TFlash = {
         error?: string,
     }
 }
+
+type TLead = {
+    id: number
+    name: string
+    email: string
+    mobile_number: string
+    utm_source: string
+    utm_medium: string
+    utm_campaign: string
+    is_private: boolean
+    lead_status_id: number
+    lead_status?: TLeadStatus
+}
+
+type TLeadStatus = {
+    id: number
+    name: string
+    slug: string
+    group: string
+    color: string
+    is_active: boolean
+    sort_order: number
+    description: string
+}

@@ -3,7 +3,7 @@
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\Admin;
+use App\Http\Controllers\Authorized\Admin;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -18,6 +18,7 @@ Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])
         Route::get('users/get-users-by-role/{role}', [Admin\UserController::class, 'getUsersByRole']);
     });
     Route::resource('users', Admin\UserController::class);
+    Route::resource('leads', Admin\LeadController::class);
 });
 
 require __DIR__.'/settings.php';

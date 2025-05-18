@@ -25,7 +25,7 @@ class LeadStatusSeeder extends Seeder
             [
                 'name' => 'New',
                 'slug' => 'new',
-                'group' => 'intake',
+                'group' => 'Intake',
                 'color' => '#0303fc',
                 'is_active' => true,
                 'sort_order' => 1,
