@@ -50,7 +50,7 @@ const handleAddUser = (e: Event) => {
                 <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                     <PlaceholderPattern />
                 </div> -->
-                <Button @click="handleAddUser"><UserIcon></UserIcon>Add User</Button>
+                <Button @click="handleAddUser" variant="default" class="text-white"><UserIcon></UserIcon>Add User</Button>
             </div>
             <div class="relative min-h-[100vh] flex-1 md:min-h-min">
                 <div class="border rounded-lg w-full">

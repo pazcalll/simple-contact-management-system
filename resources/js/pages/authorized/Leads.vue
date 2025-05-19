@@ -18,6 +18,7 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue';
 import { TLead, TLeadStatus, TPagination } from '@/types/custom';
 import { usePage } from '@inertiajs/vue3';
+import { PlusCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const page = usePage();
@@ -33,8 +34,8 @@ console.log(pagination)
     <AppLayout>
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <div class="grid grid-cols-5">
-                <Button>
-                    Add Leads
+                <Button variant="default" class="text-white">
+                    <PlusCircle></PlusCircle>Add Leads
                 </Button>
             </div>
             <div class="border rounded-lg w-full">
@@ -62,7 +63,7 @@ console.log(pagination)
                             <TableCell>
                                 <Select>
                                     <SelectTrigger class="w-full cursor-pointer" :style="{ backgroundColor: lead?.lead_status?.color }">
-                                        <SelectValue class="text-black font-black font-extrabold" :placeholder="lead?.lead_status?.name"/>
+                                        <SelectValue class="text-white font-extrabold bg-black px-1" :placeholder="lead?.lead_status?.name"/>
                                     </SelectTrigger>
                                     <SelectContent @change="console.log('clicked')">
                                         <SelectGroup>
