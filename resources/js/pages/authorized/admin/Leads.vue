@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import TablePagination, { handleNext, handlePrev } from '@/components/custom/TablePagination.vue';
+import Alert from '@/components/ui/alert/Alert.vue';
+import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
+import AlertTitle from '@/components/ui/alert/AlertTitle.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Select from '@/components/ui/select/Select.vue';
 import SelectContent from '@/components/ui/select/SelectContent.vue';
@@ -7,38 +10,36 @@ import SelectGroup from '@/components/ui/select/SelectGroup.vue';
 import SelectItem from '@/components/ui/select/SelectItem.vue';
 import SelectTrigger from '@/components/ui/select/SelectTrigger.vue';
 import SelectValue from '@/components/ui/select/SelectValue.vue';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { TLead, TLeadStatus, TPagination } from '@/types/custom';
-import { usePage } from '@inertiajs/vue3';
+import { TFlash, TLead, TLeadStatus, TPagination } from '@/types/custom';
+import { Link, usePage } from '@inertiajs/vue3';
 import { PlusCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 
-const page = usePage();
+const page = usePage<TFlash>();
 const pagination = ref<TPagination<TLead[]>>(page?.props?.leads as TPagination<TLead[]>);
 const leadStatuses = ref<TLeadStatus[]>(page.props.leadStatuses as TLeadStatus[]);
 
-const next = () => handleNext({pagination: pagination, endpoint: '/admins/leads'});
-const prev = () => handlePrev({pagination: pagination, endpoint: '/admins/leads'});
-console.log(pagination)
+const next = () => handleNext({ pagination: pagination, endpoint: '/admins/leads' });
+const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads' });
 </script>
 
 <template>
     <AppLayout>
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <Alert v-if="page.props.flash.success" class="bg-green-500">
+                <AlertTitle class="text-white">Success</AlertTitle>
+                <AlertDescription class="text-white">
+                    {{ page.props.flash.success }}
+                </AlertDescription>
+            </Alert>
             <div class="grid grid-cols-5">
-                <Button variant="default" class="text-white">
-                    <PlusCircle></PlusCircle>Add Leads
-                </Button>
+                <Link :href="route('admins.leads.create')">
+                    <Button variant="default" class="w-full text-white"> <PlusCircle></PlusCircle>Add Leads </Button>
+                </Link>
             </div>
-            <div class="border rounded-lg w-full">
+            <div class="w-full rounded-lg border">
                 <Table class="w-full">
                     <TableHeader class="text-[12pt]">
                         <TableRow class="bg-[#F5F5F4] dark:bg-[#1C1C1A]">
@@ -62,8 +63,11 @@ console.log(pagination)
                             </TableCell>
                             <TableCell>
                                 <Select>
-                                    <SelectTrigger class="w-full cursor-pointer" :style="{ backgroundColor: lead?.lead_status?.color }">
-                                        <SelectValue class="text-white font-extrabold bg-black px-1" :placeholder="lead?.lead_status?.name"/>
+                                    <SelectTrigger
+                                        class="w-full cursor-pointer"
+                                        :style="{ borderColor: lead?.lead_status?.color, borderWidth: '2px' }"
+                                    >
+                                        <SelectValue class="px-1 font-extrabold" :placeholder="lead?.lead_status?.name" />
                                     </SelectTrigger>
                                     <SelectContent @change="console.log('clicked')">
                                         <SelectGroup>
@@ -80,8 +84,8 @@ console.log(pagination)
                         </TableRow>
                     </TableBody>
                 </Table>
-                <div class="w-full flex justify-center">
-                    <div class="max-w-[14rem] w-full">
+                <div class="flex w-full justify-center">
+                    <div class="w-full max-w-[14rem]">
                         <TablePagination
                             :current_page="pagination.current_page"
                             :last_page="pagination.last_page"

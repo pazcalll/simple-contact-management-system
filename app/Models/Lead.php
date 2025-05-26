@@ -15,11 +15,12 @@ class Lead extends Model
     protected $fillable = [
         'name',
         'email',
-        'phone',
+        'mobile_number',
         'gtm_source',
         'gtm_medium',
         'gtm_campaign',
-        'status',
+        'is_private',
+        'lead_status_id',
     ];
 
     protected $appends = [

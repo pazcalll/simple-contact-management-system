@@ -1,14 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { ref } from 'vue'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ref } from 'vue';
 import { TFlash, TPagination, TUser } from '@/types/custom';
 import TablePagination, { handleNext, handlePrev } from '@/components/custom/TablePagination.vue';
 import Button from '@/components/ui/button/Button.vue';
@@ -18,17 +11,17 @@ import Alert from '@/components/ui/alert/Alert.vue';
 import AlertTitle from '@/components/ui/alert/AlertTitle.vue';
 import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
 
-const props = defineProps<{users: TPagination<TUser[]>}>()
+const props = defineProps<{ users: TPagination<TUser[]> }>();
 const page = usePage<TFlash>();
 
 const pagination = ref(props.users);
-const next = () => handleNext({pagination: pagination, endpoint: '/admins/users'});
-const prev = () => handlePrev({pagination: pagination, endpoint: '/admins/users'});
+const next = () => handleNext({ pagination: pagination, endpoint: '/admins/users' });
+const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/users' });
 
 const handleAddUser = (e: Event) => {
-    e.preventDefault()
+    e.preventDefault();
     router.visit('/admins/users/create');
-}
+};
 </script>
 
 <template>
@@ -53,7 +46,7 @@ const handleAddUser = (e: Event) => {
                 <Button @click="handleAddUser" variant="default" class="text-white"><UserIcon></UserIcon>Add User</Button>
             </div>
             <div class="relative min-h-[100vh] flex-1 md:min-h-min">
-                <div class="border rounded-lg w-full">
+                <div class="w-full rounded-lg border">
                     <Table class="w-full">
                         <TableHeader class="text-[12pt]">
                             <TableRow class="bg-[#F5F5F4] dark:bg-[#1C1C1A]">
@@ -72,8 +65,8 @@ const handleAddUser = (e: Event) => {
                             </TableRow>
                         </TableBody>
                     </Table>
-                    <div class="w-full flex justify-center">
-                        <div class="max-w-[14rem] w-full">
+                    <div class="flex w-full justify-center">
+                        <div class="w-full max-w-[14rem]">
                             <TablePagination
                                 :current_page="pagination.current_page"
                                 :last_page="pagination.last_page"

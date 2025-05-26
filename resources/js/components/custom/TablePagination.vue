@@ -11,11 +11,11 @@ import { TPagination } from '@/types/custom';
 import { router } from '@inertiajs/vue3';
 
 const props = defineProps<{
-    current_page: number,
-    last_page: number,
-    per_page: number,
-    next: () => void,
-    prev: () => void,
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    next: () => void;
+    prev: () => void;
 }>();
 const emit = defineEmits(['update:current_page', 'update:per_page', 'update:last_page']);
 
@@ -51,13 +51,12 @@ const handleDataPerPageInput = (e: InputEvent) => {
     else if (total < 1) perPage.value = 1;
     else if (total > 100) perPage.value = 100;
     else perPage.value = total;
-}
-
+};
 </script>
 
 <template>
     <div class="flex justify-evenly">
-        <Button @click="prev" variant="secondary" class="cursor-pointer"><ChevronLeft/></Button>
+        <Button @click="prev" variant="secondary" class="cursor-pointer"><ChevronLeft /></Button>
         <Button variant="secondary" class="cursor-pointer">
             <Popover>
                 <PopoverTrigger class="cursor-pointer">
@@ -66,8 +65,8 @@ const handleDataPerPageInput = (e: InputEvent) => {
                     {{ lastPage }}
                     pages
                 </PopoverTrigger>
-                <PopoverContent class="mt-3 mb-3 w-[14rem] h-[8rem]">
-                    <table class="w-full h-full">
+                <PopoverContent class="mt-3 mb-3 h-[8rem] w-[14rem]">
+                    <table class="h-full w-full">
                         <tbody>
                             <tr>
                                 <td>
@@ -75,7 +74,7 @@ const handleDataPerPageInput = (e: InputEvent) => {
                                 </td>
                                 <td class="px-3">:</td>
                                 <td class="max-w-[4rem]">
-                                    <Input name="page" type="number" v-model="currentPage" @input="handleCurrentPageInput"/>
+                                    <Input name="page" type="number" v-model="currentPage" @input="handleCurrentPageInput" />
                                 </td>
                             </tr>
                             <tr>
@@ -84,7 +83,7 @@ const handleDataPerPageInput = (e: InputEvent) => {
                                 </td>
                                 <td class="px-3">:</td>
                                 <td class="max-w-[4rem]">
-                                    <Input name="total" type="number" v-model="perPage" @input="handleDataPerPageInput"/>
+                                    <Input name="total" type="number" v-model="perPage" @input="handleDataPerPageInput" />
                                 </td>
                             </tr>
                         </tbody>
@@ -92,28 +91,25 @@ const handleDataPerPageInput = (e: InputEvent) => {
                 </PopoverContent>
             </Popover>
         </Button>
-        <Button @click="next" variant="secondary" class="cursor-pointer"><ChevronRight/></Button>
+        <Button @click="next" variant="secondary" class="cursor-pointer"><ChevronRight /></Button>
     </div>
 </template>
 
 <script lang="ts">
-const handleNext = (props: {pagination: Ref<TPagination<unknown>>, endpoint: string}) => {
+const handleNext = (props: { pagination: Ref<TPagination<unknown>>; endpoint: string }) => {
     if (props.pagination.value.current_page === props.pagination.value.last_page) return;
     router.get(props.endpoint, {
         page: props.pagination.value.current_page + 1,
         length: props.pagination.value.per_page,
     });
-}
-const handlePrev = (props: {pagination: Ref<TPagination<unknown>>, endpoint: string}) => {
+};
+const handlePrev = (props: { pagination: Ref<TPagination<unknown>>; endpoint: string }) => {
     if (props.pagination.value.current_page === 1) return;
     router.get(props.endpoint, {
         page: props.pagination.value.current_page - 1,
         length: props.pagination.value.per_page,
     });
-}
-
-export {
-    handleNext,
-    handlePrev,
 };
+
+export { handleNext, handlePrev };
 </script>

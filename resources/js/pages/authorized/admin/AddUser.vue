@@ -35,75 +35,65 @@ const selectedRole = ref<TRole>();
 const selectedUpline = ref<User>();
 
 const handlerSubmit = async () => {
-    await form.submit('post', '/admins/users')
-}
+    await form.submit('post', '/admins/users');
+};
 
 const handlerRoleSelected = async (value: unknown) => {
-    const role = roles.filter(item => item.id === value)[0];
+    const role = roles.filter((item) => item.id === value)[0];
     selectedRole.value = role;
     if (role.upline) {
-        const possibleUsers = await getUsersByRole(role.upline?.id+'') as User[];
+        const possibleUsers = (await getUsersByRole(role.upline?.id + '')) as User[];
         users.value = possibleUsers;
     }
     form.upline_id = '';
     selectedUpline.value = undefined;
-}
+};
 </script>
 
 <template>
     <AppLayout>
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <div class="w-full mx-0 flex justify-center">
+            <div class="mx-0 flex w-full justify-center">
                 <form @submit.prevent="handlerSubmit">
                     <Card class="block w-[26rem] md:w-[40rem]">
                         <CardHeader class="w-full text-center">
-                            <h2 class="font-bold text-2xl">Add User</h2>
+                            <h2 class="text-2xl font-bold">Add User</h2>
                         </CardHeader>
                         <CardContent>
-                            <div class="mx-3 space-y-2 my-5">
-                                <Label>
-                                    Name
-                                </Label>
+                            <div class="mx-3 my-5 space-y-2">
+                                <Label> Name </Label>
                                 <Input v-model="form.name" />
-                                <div class="text-red-500 text-xs" v-if="form.errors.name">{{ form.errors.name }}</div>
+                                <div class="text-xs text-red-500" v-if="form.errors.name">{{ form.errors.name }}</div>
                             </div>
-                            <div class="mx-3 space-y-2 my-5">
-                                <Label>
-                                    Email
-                                </Label>
+                            <div class="mx-3 my-5 space-y-2">
+                                <Label> Email </Label>
                                 <Input v-model="form.email" type="email" />
-                                <div class="text-red-500 text-xs" v-if="form.errors.email">{{ form.errors.email }}</div>
+                                <div class="text-xs text-red-500" v-if="form.errors.email">{{ form.errors.email }}</div>
                             </div>
-                            <div class="mx-3 space-y-2 my-5">
-                                <Label>
-                                    Password
-                                </Label>
+                            <div class="mx-3 my-5 space-y-2">
+                                <Label> Password </Label>
                                 <Input v-model="form.password" type="password" />
-                                <div class="text-red-500 text-xs" v-if="form.errors.password">{{ form.errors.password }}</div>
+                                <div class="text-xs text-red-500" v-if="form.errors.password">{{ form.errors.password }}</div>
                             </div>
-                            <div class="mx-3 space-y-2 my-5">
-                                <Label>
-                                    Password Confirmation
-                                </Label>
+                            <div class="mx-3 my-5 space-y-2">
+                                <Label> Password Confirmation </Label>
                                 <Input v-model="form.password_confirmation" type="password" />
-                                <div class="text-red-500 text-xs" v-if="form.errors.password_confirmation">{{ form.errors.password_confirmation }}</div>
+                                <div class="text-xs text-red-500" v-if="form.errors.password_confirmation">
+                                    {{ form.errors.password_confirmation }}
+                                </div>
                             </div>
-                            <div class="mx-3 space-y-2 my-5">
-                                <Label>
-                                    Mobile
-                                </Label>
+                            <div class="mx-3 my-5 space-y-2">
+                                <Label> Mobile </Label>
                                 <Input v-model="form.mobile" type="number" />
-                                <div class="text-red-500 text-xs" v-if="form.errors.mobile">{{ form.errors.mobile }}</div>
+                                <div class="text-xs text-red-500" v-if="form.errors.mobile">{{ form.errors.mobile }}</div>
                             </div>
-                            <div class="mx-3 space-y-2 my-5">
-                                <Label>
-                                    Role
-                                </Label>
+                            <div class="mx-3 my-5 space-y-2">
+                                <Label> Role </Label>
                                 <Select v-model="form.role_id" @update:model-value="handlerRoleSelected">
                                     <SelectTrigger class="w-full cursor-pointer">
                                         <SelectValue placeholder="Select a role" />
                                     </SelectTrigger>
-                                    <SelectContent @click="handlerRoleSelected">
+                                    <SelectContent>
                                         <SelectGroup>
                                             <SelectItem v-for="(role, index) in roles" :key="index" :value="role.id">
                                                 {{ role.name }}
@@ -111,12 +101,13 @@ const handlerRoleSelected = async (value: unknown) => {
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
-                                <div class="text-red-500 text-xs" v-if="form.errors.role_id">{{ form.errors.role_id }}</div>
+                                <div class="text-xs text-red-500" v-if="form.errors.role_id">{{ form.errors.role_id }}</div>
                             </div>
-                            <div class="mx-3 space-y-2 my-5" v-if="selectedRole?.name !== 'admin' && selectedRole !== undefined && selectedRole?.name !== 'manager'">
-                                <Label>
-                                    Upline
-                                </Label>
+                            <div
+                                class="mx-3 my-5 space-y-2"
+                                v-if="selectedRole?.name !== 'admin' && selectedRole !== undefined && selectedRole?.name !== 'manager'"
+                            >
+                                <Label> Upline </Label>
                                 <Select v-model="form.upline_id">
                                     <SelectTrigger class="w-full cursor-pointer">
                                         <SelectValue placeholder="Select a upline" />
@@ -129,17 +120,13 @@ const handlerRoleSelected = async (value: unknown) => {
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
-                                <div class="text-red-500 text-xs" v-if="form.errors.upline_id">{{ form.errors.upline_id }}</div>
+                                <div class="text-xs text-red-500" v-if="form.errors.upline_id">{{ form.errors.upline_id }}</div>
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <div class="w-full gap-4 mx-3 grid grid-cols-2">
-                                <Button variant="default" type="submit">
-                                    Create
-                                </Button>
-                                <Button type="reset">
-                                    Reset
-                                </Button>
+                            <div class="mx-3 grid w-full grid-cols-2 gap-4">
+                                <Button variant="default" type="submit"> Create </Button>
+                                <Button type="reset"> Reset </Button>
                             </div>
                         </CardFooter>
                     </Card>

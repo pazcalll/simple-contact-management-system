@@ -90,4 +90,10 @@ class UserController extends Controller
         $users = User::role($role->name)->get();
         return response()->json(['data' => $users]);
     }
+
+    public function getUsersByUpline(User $upline)
+    {
+        $users = User::where('upline_id', $upline->id)->get();
+        return response()->json(['data'=> $users]);
+    }
 }

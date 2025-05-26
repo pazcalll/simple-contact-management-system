@@ -32,7 +32,7 @@
         "module": "ESNext" /* Specify what module code is generated. */,
         // "rootDir": "./",                                  /* Specify the root folder within your source files. */
         "moduleResolution": "node" /* Specify how TypeScript looks up a file from a given module specifier. */,
-        "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
+        "baseUrl": "./" /* Specify the base directory to resolve non-relative module names. */,
         "paths": {
             /* Specify a set of entries that re-map imports to additional lookup locations. */
             "@/*": ["./resources/js/*"],
@@ -41,7 +41,7 @@
         // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
         // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
         "types": [
-            "vite/client",
+            "vite/client"
             // "vue/tsx",
             // "./resources/js/types"
         ] /* Specify type package names to be included without being referenced in a source file. */,
@@ -123,10 +123,5 @@
     "vueCompilerOptions": {
         "macros": ["defineProps", "defineEmits"]
     },
-    "include": [
-        "resources/js/**/*.ts",
-        "resources/js/**/*.d.ts",
-        "resources/js/**/*.tsx",
-        "resources/js/**/*.vue"
-    ]
+    "include": ["resources/js/**/*.ts", "resources/js/**/*.d.ts", "resources/js/**/*.tsx", "resources/js/**/*.vue"]
 }
