@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserLeadPivot;
-use App\Http\Requests\StoreUserLeadPivotRequest;
-use App\Http\Requests\UpdateUserLeadPivotRequest;
+use App\Models\AssignedLead;
+use App\Http\Requests\StoreAssignedLeadRequest;
+use App\Http\Requests\UpdateAssignedLeadRequest;
 
-class UserLeadPivotController extends Controller
+class AssignedLeadController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,7 @@ class UserLeadPivotController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserLeadPivotRequest $request)
+    public function store(StoreAssignedLeadRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class UserLeadPivotController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(UserLeadPivot $userLeadPivot)
+    public function show(AssignedLead $assignedLead)
     {
         //
     }
@@ -43,7 +43,7 @@ class UserLeadPivotController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(UserLeadPivot $userLeadPivot)
+    public function edit(AssignedLead $assignedLead)
     {
         //
     }
@@ -51,7 +51,7 @@ class UserLeadPivotController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserLeadPivotRequest $request, UserLeadPivot $userLeadPivot)
+    public function update(UpdateAssignedLeadRequest $request, AssignedLead $assignedLead)
     {
         //
     }
@@ -59,7 +59,7 @@ class UserLeadPivotController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(UserLeadPivot $userLeadPivot)
+    public function destroy(AssignedLead $assignedLead)
     {
         //
     }

@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_lead_pivots', function (Blueprint $table) {
+        Schema::create('assigned_leads', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(Lead::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(User::class)->constrained();
+            $table->foreignIdFor(Lead::class)->constrained();
         });
     }
 
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_lead_pivots');
+        Schema::dropIfExists('assigned_leads');
     }
 };

@@ -8,11 +8,19 @@ use App\Models\Lead;
 use App\Models\LeadStatus;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\LeadService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class LeadController extends Controller
 {
+    private LeadService $leadService;
+
+    public function __construct()
+    {
+        $this->leadService = new LeadService();
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -47,14 +55,16 @@ class LeadController extends Controller
     {
         //
         $validatedData = $request->validated();
-        $leadStatus = LeadStatus::where('name', 'New')->first();
-        Lead::create([
-            ...$validatedData,
-            'utm_source' => @$validatedData['source'],
-            'utm_medium' => @$validatedData['medium'],
-            'utm_campaign' => @$validatedData['campaign'],
-            'lead_status_id' => $leadStatus->id,
-        ]);
+
+        $this->leadService->createLeadAssignee(
+            $this->leadService->createLead($validatedData),
+            [
+                @$validatedData['manager_id'],
+                @$validatedData['supervisor_id'],
+                @$validatedData['team_leader_id'],
+                @$validatedData['staff_id'],
+            ]
+        );
 
         return redirect()->route('admins.leads.index')->with('success','Lead data has been created');
     }
