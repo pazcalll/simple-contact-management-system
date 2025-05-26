@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\LeadService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class LeadController extends Controller
@@ -54,17 +55,24 @@ class LeadController extends Controller
     public function store(StoreLeadRequest $request)
     {
         //
-        $validatedData = $request->validated();
+        try {
+            $validatedData = $request->validated();
 
-        $this->leadService->createLeadAssignee(
-            $this->leadService->createLead($validatedData),
-            [
-                @$validatedData['manager_id'],
-                @$validatedData['supervisor_id'],
-                @$validatedData['team_leader_id'],
-                @$validatedData['staff_id'],
-            ]
-        );
+            DB::beginTransaction();
+            $this->leadService->createLeadAssignee(
+                $this->leadService->createLead($validatedData),
+                [
+                    @$validatedData['manager_id'],
+                    @$validatedData['supervisor_id'],
+                    @$validatedData['team_leader_id'],
+                    @$validatedData['staff_id'],
+                ]
+            );
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return redirect()->back()->with('error', $th->getMessage());
+        }
 
         return redirect()->route('admins.leads.index')->with('success','Lead data has been created');
     }
