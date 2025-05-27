@@ -8,7 +8,7 @@ use App\Models\Lead;
 use App\Models\LeadStatus;
 use App\Models\Role;
 use App\Models\User;
-use App\Services\LeadService;
+use App\Services\Admin\LeadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;

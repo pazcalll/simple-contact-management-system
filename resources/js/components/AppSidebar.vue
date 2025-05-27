@@ -4,9 +4,17 @@ import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { CircleUserRound, LayoutGrid, PersonStanding } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
+import { TUser } from '@/types/custom';
+import { ROLE_ADMIN, ROLE_STAFF } from '@/consts/role';
+
+type TAuth = { auth: { user: TUser } }
+
+const page = usePage<TAuth>();
+const user = page.props.auth.user;
+const role = user.roles[0];
 
 const mainNavItems: NavItem[] = [
     {
@@ -14,17 +22,31 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid,
     },
-    {
-        title: 'Users',
-        href: '/admins/users',
-        icon: PersonStanding,
-    },
-    {
-        title: 'Leads',
-        href: '/admins/leads',
-        icon: CircleUserRound,
-    },
 ];
+
+if (role.name == ROLE_STAFF) {
+    mainNavItems.push(
+        {
+            title: 'Leads',
+            href: '/staffs/leads',
+            icon: PersonStanding
+        },
+    )
+}
+else if (role.name == ROLE_ADMIN) {
+    mainNavItems.push(
+        {
+            title: 'Users',
+            href: '/admins/users',
+            icon: PersonStanding,
+        },
+        {
+            title: 'Leads',
+            href: '/admins/leads',
+            icon: CircleUserRound,
+        },
+    );
+}
 
 const footerNavItems: NavItem[] = [
     // {

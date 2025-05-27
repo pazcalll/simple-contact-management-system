@@ -4,6 +4,7 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Authorized\Admin;
+use App\Http\Controllers\Authorized\Staff;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -20,6 +21,10 @@ Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])
     });
     Route::resource('users', Admin\UserController::class);
     Route::resource('leads', Admin\LeadController::class);
+});
+
+Route::prefix('staffs')->name('staffs.')->middleware(['role:'.Role::ROLE_STAFF])->group(function () {
+    Route::resource('leads', Staff\LeadController::class);
 });
 
 require __DIR__.'/settings.php';

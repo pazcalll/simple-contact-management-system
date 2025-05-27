@@ -36,7 +36,7 @@ class Lead extends Model
     // relations
     public function users()
     {
-        return $this->belongsToMany(User::class, 'user_lead_pivots');
+        return $this->belongsToMany(User::class, 'assigned_leads');
     }
 
     public function leadStatus()
