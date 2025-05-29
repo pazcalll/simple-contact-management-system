@@ -41,8 +41,8 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                 </AlertDescription>
             </Alert>
             <div class="grid grid-cols-5">
-                <Link :href="route('admins.leads.create')">
-                    <Button variant="default" class="w-full text-white"> <PlusCircle></PlusCircle>Add Leads </Button>
+                <Link :href="route('staffs.leads.create')">
+                    <Button variant="default" class="w-full text-white"><PlusCircle></PlusCircle>Add Leads</Button>
                 </Link>
             </div>
             <div class="w-full rounded-lg border">

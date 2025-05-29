@@ -34,7 +34,7 @@ class StoreLeadRequest extends FormRequest
             'source' => ['required', 'max:16'],
             'medium' => ['nullable', 'max:16'],
             'campaign' => ['nullable', 'max:16'],
-            'manager_id' => ['required', 'exists:users,id', new HasManagerRole],
+            'manager_id' => ['nullable', 'exists:users,id', new HasManagerRole],
             'supervisor_id' => ['nullable', 'exists:users,id', new HasSupervisorRole],
             'team_leader_id' => ['nullable', 'exists:users,id', new HasTeamLeaderRole],
             'staff_id' => ['nullable', 'exists:users,id', new HasStaffRole],
