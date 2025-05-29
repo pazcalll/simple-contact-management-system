@@ -20,6 +20,7 @@ Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])
         Route::get('users/get-users-by-upline/{upline}', [Admin\UserController::class, 'getUsersByUpline']);
     });
     Route::resource('users', Admin\UserController::class);
+    Route::post('leads/mass-assignee', [Admin\LeadController::class, 'storeMassAssignee']);
     Route::resource('leads', Admin\LeadController::class);
 });
 

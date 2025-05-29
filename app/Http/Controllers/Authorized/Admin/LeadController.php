@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Authorized\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admins\StoreAssigneeRequest;
 use App\Http\Requests\Admins\StoreLeadRequest;
 use App\Models\Lead;
 use App\Models\LeadStatus;
@@ -107,5 +108,27 @@ class LeadController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function storeMassAssignee(StoreAssigneeRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            $this->leadService->createMassLeadAssignee(
+                $request->post('lead_ids'),
+                [
+                    @$request->post('manager_id'),
+                    @$request->post('supervisor_id'),
+                    @$request->post('team_leader_id'),
+                    @$request->post('staff_id'),
+                ],
+            );
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Leads data mass assigned completely');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return redirect()->back()->with('error', $th->getMessage());
+        }
     }
 }

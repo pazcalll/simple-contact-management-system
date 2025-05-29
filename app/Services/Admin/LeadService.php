@@ -34,13 +34,27 @@ class LeadService
         foreach ($assigneeIds as $key => $assigneeId) {
             if ($assigneeId == null) continue;
 
-            $assignee = User::find($assigneeId);
-            if ($assignee) {
-                AssignedLead::create([
-                    'user_id' => $assignee->id,
-                    'lead_id' => $lead->id,
-                ]);
-            }
+            AssignedLead::create([
+                'user_id' => $assigneeId,
+                'lead_id' => $lead->id,
+            ]);
+        }
+    }
+
+    public function deleteMassLeadAssignee(array $leadIds)
+    {
+        AssignedLead::whereIn('lead_id', $leadIds)->delete();
+    }
+
+    public function createMassLeadAssignee(array $leadIds, array $assigneeIds)
+    {
+        // reset the assignee data
+        $this->deleteMassLeadAssignee($leadIds);
+
+        // re-create the assignees
+        $leads = Lead::whereIn('id', $leadIds)->get();
+        foreach ($leads as $key => $lead) {
+            $this->createLeadAssignee($lead, $assigneeIds);
         }
     }
 }
