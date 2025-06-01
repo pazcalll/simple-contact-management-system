@@ -31,6 +31,9 @@ class LeadController extends Controller
         //
         $leads = Lead::latest()->with('leadStatus')->isPrivate(false)->paginate();
         $leadStatuses = LeadStatus::latest()->get();
+
+        if (request()->header('X-Request-Format') == 'json') return response()->json([...$leads->toArray()]);
+
         return Inertia::render('authorized/admin/Leads', [
             'leads' => $leads,
             'leadStatuses' => $leadStatuses
