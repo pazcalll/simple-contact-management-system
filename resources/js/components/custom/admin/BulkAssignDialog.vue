@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Copy } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -11,42 +10,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 </script>
 
 <template>
   <Dialog>
     <DialogTrigger as-child>
-        <slot/>
+        <slot name="trigger"/>
     </DialogTrigger>
     <DialogContent class="sm:max-w-md">
       <DialogHeader>
-        <DialogTitle>Share link</DialogTitle>
-        <DialogDescription>
-          Anyone who has this link will be able to view this.
-        </DialogDescription>
+        <DialogTitle>Assign Data</DialogTitle>
+        <DialogDescription>Names below will be assigned to the checked data</DialogDescription>
       </DialogHeader>
-      <div class="flex items-center space-x-2">
-        <div class="grid flex-1 gap-2">
-          <Label for="link" class="sr-only">
-            Link
-          </Label>
-          <Input
-            id="link"
-            default-value="https://shadcn-vue.com/docs/installation"
-            read-only
-          />
-        </div>
-        <Button type="submit" size="sm" class="px-3">
-          <span class="sr-only">Copy</span>
-          <Copy class="w-4 h-4" />
-        </Button>
+      <div class="flex items-center flex-col gap-3 w-full">
+        <slot name="content" />
       </div>
       <DialogFooter class="sm:justify-start">
         <DialogClose as-child>
           <Button type="button" variant="secondary">
             Close
+          </Button>
+          <Button type="submit" @click="$emit('submit')" variant="default">
+            Submit
           </Button>
         </DialogClose>
       </DialogFooter>

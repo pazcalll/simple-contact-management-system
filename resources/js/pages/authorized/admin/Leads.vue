@@ -6,6 +6,7 @@ import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
 import AlertTitle from '@/components/ui/alert/AlertTitle.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Input from '@/components/ui/input/Input.vue';
+import Label from '@/components/ui/label/Label.vue';
 import Select from '@/components/ui/select/Select.vue';
 import SelectContent from '@/components/ui/select/SelectContent.vue';
 import SelectGroup from '@/components/ui/select/SelectGroup.vue';
@@ -13,16 +14,32 @@ import SelectItem from '@/components/ui/select/SelectItem.vue';
 import SelectTrigger from '@/components/ui/select/SelectTrigger.vue';
 import SelectValue from '@/components/ui/select/SelectValue.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { getUsersByUpline } from '@/data/admins/users';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { TFlash, TLead, TLeadStatus, TPagination } from '@/types/custom';
+import { TFlash, TLead, TLeadStatus, TPagination, TUser } from '@/types/custom';
 import { Link, usePage } from '@inertiajs/vue3';
 import { PlusCircle, PlusSquare } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { AcceptableValue } from 'reka-ui';
+import { onMounted, ref } from 'vue';
 
 const page = usePage<TFlash>();
 const pagination = ref<TPagination<TLead[]>>(page?.props?.leads as TPagination<TLead[]>);
 const leadStatuses = ref<TLeadStatus[]>(page.props.leadStatuses as TLeadStatus[]);
 const checkedIds = ref<number[]>([]);
+
+const managers = ref<TUser[]>([]);
+const supervisors = ref<TUser[]>([]);
+const teamLeaders = ref<TUser[]>([]);
+const staffs = ref<TUser[]>([]);
+
+const selectedManagerId = ref<number|null>(null);
+const selectedSupervisorId = ref<number|null>(null);
+const selectedTeamLeaderId = ref<number|null>(null);
+const selectedStaffId = ref<number|null>(null);
+
+onMounted(() => {
+    managers.value = (page.props.managers || []) as TUser[];
+});
 
 const enqueueId = (id: number) => {
     if (!checkedIds.value) {
@@ -52,6 +69,24 @@ const handleCheckbox = (id: number) => {
     else console.log('unidentified action');
 }
 
+const handleManagerSelected = async (managerId: AcceptableValue) => {
+    const dataSupervisors = await getUsersByUpline(managerId as string)
+    supervisors.value = dataSupervisors as TUser[]
+    teamLeaders.value = []
+    staffs.value = []
+}
+
+const handleSupervisorSelected = async (supervisorId: AcceptableValue) => {
+    const dataTeamLeaders = await getUsersByUpline(supervisorId as string)
+    teamLeaders.value = dataTeamLeaders as TUser[]
+    staffs.value = []
+}
+
+const handleTeamLeaderSelected = async (TeamLeaderId: AcceptableValue) => {
+    const dataStaffs = await getUsersByUpline(TeamLeaderId as string)
+    staffs.value = dataStaffs as TUser[]
+}
+
 const nextAjax = async () => {
     const response = await handleNextAJAX({ pagination: pagination, endpoint: '/admins/leads' })
     if (response == undefined) return;
@@ -78,7 +113,65 @@ const prevAjax = async () => {
                     <Button variant="default" class="w-full text-white"> <PlusCircle></PlusCircle>Add Leads </Button>
                 </Link>
                 <BulkAssignDialog>
-                    <Button variant="secondary" class="w-full"> <PlusSquare></PlusSquare>Bulk Assign </Button>
+                    <template #trigger>
+                        <Button variant="secondary" class="w-full"> <PlusSquare></PlusSquare>Bulk Assign </Button>
+                    </template>
+                    <template #content>
+                        <div class="w-full">
+                            <Label class="mb-1">Manager</Label>
+                            <Select v-model="selectedManagerId" @update:model-value="handleManagerSelected">
+                                <SelectTrigger class="w-full">
+                                    <SelectValue placeholder="Select Manager" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectItem v-for="manager in managers" :key="manager.id" :value="manager.id">
+                                            {{ manager.name }}
+                                        </SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div class="w-full">
+                            <Label class="mb-1">Supervisor</Label>
+                            <Select v-model="selectedSupervisorId" @update:model-value="handleSupervisorSelected">
+                                <SelectTrigger class="w-full">
+                                    <SelectValue placeholder="Select Supervisor"/>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem v-for="supervisor in supervisors" :key="supervisor.id" :value="supervisor.id">
+                                        {{ supervisor.name }}
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div class="w-full">
+                            <Label class="mb-1">Team Leader</Label>
+                            <Select v-model="selectedTeamLeaderId" @update:model-value="handleTeamLeaderSelected">
+                                <SelectTrigger class="w-full">
+                                    <SelectValue placeholder="Select Team Leader"/>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem v-for="teamLeader in teamLeaders" :key="teamLeader.id" :value="teamLeader.id">
+                                        {{ teamLeader.name }}
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div class="w-full">
+                            <Label class="mb-1">Staff</Label>
+                            <Select v-model="selectedStaffId">
+                                <SelectTrigger class="w-full">
+                                    <SelectValue placeholder="Select Staff"/>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem v-for="staff in staffs" :key="staff.id" :value="staff.id">
+                                        {{ staff.name }}
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </template>
                 </BulkAssignDialog>
             </div>
             <div class="w-full rounded-lg border">
@@ -116,7 +209,7 @@ const prevAjax = async () => {
                                     >
                                         <SelectValue class="px-1 font-extrabold" :placeholder="lead?.lead_status?.name" />
                                     </SelectTrigger>
-                                    <SelectContent @change="console.log('clicked')">
+                                    <SelectContent>
                                         <SelectGroup>
                                             <SelectItem v-for="(leadStatus, index) in leadStatuses" :key="index" :value="leadStatus.id">
                                                 {{ leadStatus.name }}
