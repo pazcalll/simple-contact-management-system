@@ -20,7 +20,7 @@ import { updateLeadStatus } from '@/data/leads';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { TFlash, TLead, TLeadStatus, TPagination, TUser } from '@/types/custom';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
-import { PlusCircle, PlusSquare } from 'lucide-vue-next';
+import { Loader, PlusCircle, PlusSquare } from 'lucide-vue-next';
 import { AcceptableValue } from 'reka-ui';
 import { onMounted, ref } from 'vue';
 
@@ -33,6 +33,7 @@ const pagination = ref<TPagination<TLeadWithUsers[]>>(page?.props?.leads as TPag
 const leadStatuses = ref<TLeadStatus[]>(page.props.leadStatuses as TLeadStatus[]);
 const groupedLeadStatuses = ref<{ [group: string]: TLeadStatus[] }>({});
 const isDialogOpen = ref<boolean>(false);
+const statusLoading = ref<{ [leadId: number]: boolean }>({});
 
 const managers = ref<TUser[]>([]);
 const supervisors = ref<TUser[]>([]);
@@ -115,9 +116,11 @@ const handleTeamLeaderSelected = async (TeamLeaderId: AcceptableValue) => {
 }
 
 const handleLeadStatusChanged = async (leadId: number, leadStatusId: AcceptableValue) => {
+    statusLoading.value[leadId] = true;
     await updateLeadStatus(leadId, leadStatusId as number)
     const data = await handleReloadAJAX({pagination: pagination, endpoint: '/admins/leads'});
     pagination.value = data as TPagination<TLead[]>;
+    statusLoading.value[leadId] = false;
 }
 
 const handleSubmitBulkAssign = () => {
@@ -188,8 +191,9 @@ const prevAjax = async () => {
                                     <SelectValue placeholder="Select Lead Status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem v-for="leadStatus in leadStatuses" :key="leadStatus.id" :value="leadStatus.id">
+                                    <SelectGroup v-for="[index, groupedLeadStatus] in Object.entries(groupedLeadStatuses)" :key="index">
+                                        <SelectLabel class="bg-gray-300">{{ index }}</SelectLabel>
+                                        <SelectItem v-for="(leadStatus, index) in groupedLeadStatus" :key="index" :value="leadStatus.id">
                                             {{ leadStatus.name }}
                                         </SelectItem>
                                     </SelectGroup>
@@ -281,7 +285,7 @@ const prevAjax = async () => {
                                 {{ lead.email }}
                             </TableCell>
                             <TableCell>
-                                <Select v-model="lead.lead_status_id" @update:model-value="(e) => handleLeadStatusChanged(lead.id, e)">
+                                <Select v-if="!statusLoading[lead.id]" v-model="lead.lead_status_id" @update:model-value="(e) => handleLeadStatusChanged(lead.id, e)">
                                     <SelectTrigger
                                         class="w-full cursor-pointer"
                                         :style="{ borderColor: lead?.lead_status?.color, borderWidth: '2px' }"
@@ -297,6 +301,7 @@ const prevAjax = async () => {
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
+                                <Loader v-if="statusLoading[lead.id]" class="animate-spin" />
                             </TableCell>
                             <TableCell>
                                 {{ lead.is_private ? 'owned by the staff' : 'owned by admin' }}
