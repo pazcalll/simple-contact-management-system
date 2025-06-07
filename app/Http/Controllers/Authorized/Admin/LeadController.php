@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Authorized\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admins\StoreAssignedLeadRequest as AdminsStoreAssignedLeadRequest;
 use App\Http\Requests\Admins\StoreAssigneeRequest;
 use App\Http\Requests\Admins\StoreLeadRequest;
 use App\Models\Lead;
@@ -132,6 +133,24 @@ class LeadController extends Controller
 
             return redirect()->back()->with('success', 'Leads data mass assigned completely');
         } catch (\Throwable $th) {
+            DB::rollBack();
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+
+    public function bulkAssignLeads(AdminsStoreAssignedLeadRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            $this->leadService
+                ->setFormRequest($request)
+                ->updateLeadStatuses()
+                ->updateMassLeadAssignee();
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Bulk assign success');
+        } catch (\Throwable $th) {
+            //throw $th;
             DB::rollBack();
             return redirect()->back()->with('error', $th->getMessage());
         }

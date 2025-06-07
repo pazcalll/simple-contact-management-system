@@ -17,6 +17,8 @@ class HasStaffRole implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         //
+        if ($value == null) return;
+
         $staff = User::role(Role::ROLE_STAFF)->find($value);
         if (!$staff) $fail('Staff data invalid');
     }

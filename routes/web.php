@@ -21,6 +21,7 @@ Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])
     });
     Route::resource('users', Admin\UserController::class);
     Route::post('leads/mass-assignee', [Admin\LeadController::class, 'storeMassAssignee']);
+    Route::post('leads/bulk-assign-leads', [Admin\LeadController::class, 'bulkAssignLeads']);
     Route::resource('leads', Admin\LeadController::class);
 });
 

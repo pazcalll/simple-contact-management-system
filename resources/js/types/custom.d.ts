@@ -67,3 +67,13 @@ type TLeadStatus = {
     sort_order: number;
     description: string;
 };
+
+type TStatus = {
+    name: string;
+    slug: string;
+    group: string;
+    color: string;
+    is_active: boolean;
+    sort_order: number;
+    description: string;
+}

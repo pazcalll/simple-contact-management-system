@@ -2,13 +2,16 @@
 
 namespace App\Rules;
 
-use App\Models\Role;
 use App\Models\User;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class HasManagerRole implements ValidationRule
+class HasCorrectUpline implements ValidationRule
 {
+    public function __construct(
+        private int|string|null $uplineId
+    ){}
+
     /**
      * Run the validation rule.
      *
@@ -19,7 +22,9 @@ class HasManagerRole implements ValidationRule
         //
         if ($value == null) return;
 
-        $manager = User::role(Role::ROLE_MANAGER)->find($value);
-        if (!$manager) $fail('Manager data invalid');
+        $upline = User::find($this->uplineId);
+        $currentUser = User::find($value);
+
+        if ($upline->id != $currentUser->upline_id) $fail('Incorrect upline');
     }
 }

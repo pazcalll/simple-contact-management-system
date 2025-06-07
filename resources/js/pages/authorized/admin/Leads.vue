@@ -17,7 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { getUsersByUpline } from '@/data/admins/users';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { TFlash, TLead, TLeadStatus, TPagination, TUser } from '@/types/custom';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, useForm, usePage } from '@inertiajs/vue3';
 import { PlusCircle, PlusSquare } from 'lucide-vue-next';
 import { AcceptableValue } from 'reka-ui';
 import { onMounted, ref } from 'vue';
@@ -25,20 +25,35 @@ import { onMounted, ref } from 'vue';
 const page = usePage<TFlash>();
 const pagination = ref<TPagination<TLead[]>>(page?.props?.leads as TPagination<TLead[]>);
 const leadStatuses = ref<TLeadStatus[]>(page.props.leadStatuses as TLeadStatus[]);
-const checkedIds = ref<number[]>([]);
+const groupedLeadStatuses = ref<{ [group: string]: TLeadStatus[] }>({});
 
 const managers = ref<TUser[]>([]);
 const supervisors = ref<TUser[]>([]);
 const teamLeaders = ref<TUser[]>([]);
 const staffs = ref<TUser[]>([]);
 
+const checkedIds = ref<number[]>([]);
+const selectedLeadStatusId = ref<number|null>(null);
 const selectedManagerId = ref<number|null>(null);
 const selectedSupervisorId = ref<number|null>(null);
 const selectedTeamLeaderId = ref<number|null>(null);
 const selectedStaffId = ref<number|null>(null);
 
+const groupLeadStatuses = () => {
+    const groups: { [group: string]: TLeadStatus[] } = {};
+    leadStatuses.value.forEach((status) => {
+        const group = status.group || 'Ungrouped';
+        if (!groups[group]) {
+            groups[group] = [];
+        }
+        groups[group].push(status);
+    });
+    groupedLeadStatuses.value = groups;
+};
+
 onMounted(() => {
     managers.value = (page.props.managers || []) as TUser[];
+    groupLeadStatuses();
 });
 
 const enqueueId = (id: number) => {
@@ -69,6 +84,11 @@ const handleCheckbox = (id: number) => {
     else console.log('unidentified action');
 }
 
+const handleLeadStatusId = async (statusId: AcceptableValue) => {
+    const status = leadStatuses.value.find(leadStatus => leadStatus.id == statusId as number)
+    selectedLeadStatusId.value = status?.id as number|null;
+}
+
 const handleManagerSelected = async (managerId: AcceptableValue) => {
     const dataSupervisors = await getUsersByUpline(managerId as string)
     supervisors.value = dataSupervisors as TUser[]
@@ -85,6 +105,20 @@ const handleSupervisorSelected = async (supervisorId: AcceptableValue) => {
 const handleTeamLeaderSelected = async (TeamLeaderId: AcceptableValue) => {
     const dataStaffs = await getUsersByUpline(TeamLeaderId as string)
     staffs.value = dataStaffs as TUser[]
+}
+
+const handleSubmitBulkAssign = () => {
+    const form = useForm({
+        lead_ids: checkedIds.value,
+        lead_status_id: selectedLeadStatusId.value,
+        manager_id: selectedManagerId.value,
+        supervisor_id: selectedSupervisorId.value,
+        team_leader_id: selectedTeamLeaderId.value,
+        staff_id: selectedStaffId.value,
+    });
+    console.log(form)
+
+    form.submit('post', '/admins/leads/bulk-assign-leads');
 }
 
 const nextAjax = async () => {
@@ -112,11 +146,26 @@ const prevAjax = async () => {
                 <Link :href="route('admins.leads.create')">
                     <Button variant="default" class="w-full text-white"> <PlusCircle></PlusCircle>Add Leads </Button>
                 </Link>
-                <BulkAssignDialog>
+                <BulkAssignDialog @submit="handleSubmitBulkAssign">
                     <template #trigger>
                         <Button variant="secondary" class="w-full"> <PlusSquare></PlusSquare>Bulk Assign </Button>
                     </template>
                     <template #content>
+                        <div class="w-full">
+                            <Label class="mb-1">Status</Label>
+                            <Select v-model="selectedLeadStatusId" @update:model-value="handleLeadStatusId">
+                                <SelectTrigger class="w-full">
+                                    <SelectValue placeholder="Select Lead Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectItem v-for="leadStatus in leadStatuses" :key="leadStatus.id" :value="leadStatus.id">
+                                            {{ leadStatus.name }}
+                                        </SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </div>
                         <div class="w-full">
                             <Label class="mb-1">Manager</Label>
                             <Select v-model="selectedManagerId" @update:model-value="handleManagerSelected">

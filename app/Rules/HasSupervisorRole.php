@@ -17,6 +17,8 @@ class HasSupervisorRole implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         //
+        if ($value == null) return;
+
         $staff = User::role(Role::ROLE_SUPERVISOR)->find($value);
         if (!$staff) $fail('Supervisor data invalid');
     }
