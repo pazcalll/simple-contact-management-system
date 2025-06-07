@@ -97,9 +97,7 @@ const handleDataPerPageInput = (e: InputEvent) => {
 </template>
 
 <script lang="ts">
-const handleNextAJAX = async (props: { pagination: Ref<TPagination<unknown>>; endpoint: string }): Promise<unknown> => {
-    if (props.pagination.value.current_page === props.pagination.value.last_page) return;
-    const url = props.endpoint + '?' + "page=" + (props.pagination.value.current_page + 1) + "&length=" + (props.pagination.value.per_page);
+const handleGetData = async (url: string): Promise<unknown> => {
     const fetcher = await fetch(url, {
         method: 'GET',
         headers: {
@@ -115,29 +113,31 @@ const handleNextAJAX = async (props: { pagination: Ref<TPagination<unknown>>; en
         return data;
     }
 
-    return undefined;
+    return data;
+}
+
+const handleReloadAJAX = async (props: { pagination: Ref<TPagination<unknown>>; endpoint: string }): Promise<unknown> => {
+    const url = props.endpoint + '?' + "page=" + (props.pagination.value.current_page ?? 1) + "&length=" + (props.pagination.value.per_page);
+    const data = await handleGetData(url);
+
+    return data;
+}
+
+const handleNextAJAX = async (props: { pagination: Ref<TPagination<unknown>>; endpoint: string }): Promise<unknown> => {
+    if (props.pagination.value.current_page === props.pagination.value.last_page) return;
+    const url = props.endpoint + '?' + "page=" + (props.pagination.value.current_page + 1) + "&length=" + (props.pagination.value.per_page);
+    const data = await handleGetData(url);
+
+    return data;
 }
 
 const handlePrevAJAX = async (props: { pagination: Ref<TPagination<unknown>>; endpoint: string }): Promise<unknown> => {
     if (props.pagination.value.current_page === 1) return;
     const url = props.endpoint + '?' + "page=" + (props.pagination.value.current_page - 1) + "&length=" + (props.pagination.value.per_page);
-    const fetcher = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json',
-            'X-Request-Format': 'json',
-        }
-    });
+    const data = await handleGetData(url);
 
-    let data = null;
-    if (fetcher.ok) {
-        data = await fetcher.json() as TPagination<unknown>;
-        return data;
-    }
-
-    return undefined;
+    return data;
 }
 
-export { handleNextAJAX, handlePrevAJAX };
+export { handleNextAJAX, handlePrevAJAX, handleReloadAJAX };
 </script>

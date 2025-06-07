@@ -10,10 +10,30 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { ref, watch } from 'vue';
+
+const props = defineProps<{open?: boolean}>();
+const emit = defineEmits(['update:open', 'submit']);
+const internalOpen = ref<boolean>(props.open ?? false)
+
+// Sync internalOpen when parent changes open prop
+watch(() => props.open, (val) => {
+    internalOpen.value = val ?? false
+})
+
+// Emit update:open when internalOpen changes (two-way binding)
+watch(internalOpen, (val) => {
+    emit('update:open', val)
+});
+
+function closeDialog() {
+    internalOpen.value = false
+    emit('update:open', false)
+}
 </script>
 
 <template>
-  <Dialog>
+  <Dialog v-model:open="internalOpen">
     <DialogTrigger as-child>
         <slot name="trigger"/>
     </DialogTrigger>
@@ -27,7 +47,7 @@ import {
       </div>
       <DialogFooter class="sm:justify-start">
         <DialogClose as-child>
-          <Button type="button" variant="secondary">
+          <Button type="button" @click="closeDialog" variant="secondary">
             Close
           </Button>
           <Button type="submit" @click="$emit('submit')" variant="default">

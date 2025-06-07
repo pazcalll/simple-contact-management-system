@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BulkAssignDialog from '@/components/custom/admin/BulkAssignDialog.vue';
-import TablePaginationAjax, { handleNextAJAX, handlePrevAJAX } from '@/components/custom/TablePaginationAjax.vue';
+import TablePaginationAjax, { handleNextAJAX, handlePrevAJAX, handleReloadAJAX } from '@/components/custom/TablePaginationAjax.vue';
 import Alert from '@/components/ui/alert/Alert.vue';
 import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
 import AlertTitle from '@/components/ui/alert/AlertTitle.vue';
@@ -22,10 +22,15 @@ import { PlusCircle, PlusSquare } from 'lucide-vue-next';
 import { AcceptableValue } from 'reka-ui';
 import { onMounted, ref } from 'vue';
 
+type TLeadWithUsers = TLead & {
+    users?: TUser[]|null
+};
+
 const page = usePage<TFlash>();
-const pagination = ref<TPagination<TLead[]>>(page?.props?.leads as TPagination<TLead[]>);
+const pagination = ref<TPagination<TLeadWithUsers[]>>(page?.props?.leads as TPagination<TLeadWithUsers[]>);
 const leadStatuses = ref<TLeadStatus[]>(page.props.leadStatuses as TLeadStatus[]);
 const groupedLeadStatuses = ref<{ [group: string]: TLeadStatus[] }>({});
+const isDialogOpen = ref<boolean>(false);
 
 const managers = ref<TUser[]>([]);
 const supervisors = ref<TUser[]>([]);
@@ -116,9 +121,26 @@ const handleSubmitBulkAssign = () => {
         team_leader_id: selectedTeamLeaderId.value,
         staff_id: selectedStaffId.value,
     });
-    console.log(form)
 
-    form.submit('post', '/admins/leads/bulk-assign-leads');
+    form.submit('post', '/admins/leads/bulk-assign-leads', {
+        onSuccess: async function () {
+            pagination.value = pagination.value;
+            isDialogOpen.value = false;
+
+            checkedIds.value = [];
+            selectedLeadStatusId.value = null;
+            selectedManagerId.value = null;
+            selectedSupervisorId.value = null;
+            selectedTeamLeaderId.value = null;
+            selectedStaffId.value = null;
+            supervisors.value = [];
+            teamLeaders.value = [];
+            staffs.value = [];
+
+            const data = await handleReloadAJAX({ pagination: pagination, endpoint: '/admins/leads' });
+            pagination.value = data as TPagination<TLead[]>;
+        }
+    });
 }
 
 const nextAjax = async () => {
@@ -146,7 +168,7 @@ const prevAjax = async () => {
                 <Link :href="route('admins.leads.create')">
                     <Button variant="default" class="w-full text-white"> <PlusCircle></PlusCircle>Add Leads </Button>
                 </Link>
-                <BulkAssignDialog @submit="handleSubmitBulkAssign">
+                <BulkAssignDialog @submit="handleSubmitBulkAssign" v-model:open="isDialogOpen">
                     <template #trigger>
                         <Button variant="secondary" class="w-full"> <PlusSquare></PlusSquare>Bulk Assign </Button>
                     </template>
@@ -271,7 +293,9 @@ const prevAjax = async () => {
                                 {{ lead.is_private ? 'owned by the staff' : 'owned by admin' }}
                             </TableCell>
                             <TableCell>
-                                _
+                                <ul class="list-disc">
+                                    <li v-for="(user, _index) in lead.users" v-bind:key="_index">{{ user.name }}</li>
+                                </ul>
                             </TableCell>
                         </TableRow>
                     </TableBody>

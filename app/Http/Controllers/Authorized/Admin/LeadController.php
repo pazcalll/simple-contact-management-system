@@ -30,7 +30,7 @@ class LeadController extends Controller
     public function index()
     {
         //
-        $leads = Lead::latest()->with('leadStatus')->isPrivate(false)->paginate();
+        $leads = Lead::latest()->with(['leadStatus', 'users'])->isPrivate(false)->paginate();
         $leadStatuses = LeadStatus::latest()->get();
         $managers = User::role(Role::ROLE_MANAGER)->get();
 
