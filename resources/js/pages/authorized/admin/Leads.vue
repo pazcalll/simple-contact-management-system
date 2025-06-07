@@ -11,10 +11,12 @@ import Select from '@/components/ui/select/Select.vue';
 import SelectContent from '@/components/ui/select/SelectContent.vue';
 import SelectGroup from '@/components/ui/select/SelectGroup.vue';
 import SelectItem from '@/components/ui/select/SelectItem.vue';
+import SelectLabel from '@/components/ui/select/SelectLabel.vue';
 import SelectTrigger from '@/components/ui/select/SelectTrigger.vue';
 import SelectValue from '@/components/ui/select/SelectValue.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getUsersByUpline } from '@/data/admins/users';
+import { updateLeadStatus } from '@/data/leads';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { TFlash, TLead, TLeadStatus, TPagination, TUser } from '@/types/custom';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
@@ -110,6 +112,12 @@ const handleSupervisorSelected = async (supervisorId: AcceptableValue) => {
 const handleTeamLeaderSelected = async (TeamLeaderId: AcceptableValue) => {
     const dataStaffs = await getUsersByUpline(TeamLeaderId as string)
     staffs.value = dataStaffs as TUser[]
+}
+
+const handleLeadStatusChanged = async (leadId: number, leadStatusId: AcceptableValue) => {
+    await updateLeadStatus(leadId, leadStatusId as number)
+    const data = await handleReloadAJAX({pagination: pagination, endpoint: '/admins/leads'});
+    pagination.value = data as TPagination<TLead[]>;
 }
 
 const handleSubmitBulkAssign = () => {
@@ -273,7 +281,7 @@ const prevAjax = async () => {
                                 {{ lead.email }}
                             </TableCell>
                             <TableCell>
-                                <Select>
+                                <Select v-model="lead.lead_status_id" @update:model-value="(e) => handleLeadStatusChanged(lead.id, e)">
                                     <SelectTrigger
                                         class="w-full cursor-pointer"
                                         :style="{ borderColor: lead?.lead_status?.color, borderWidth: '2px' }"
@@ -281,8 +289,9 @@ const prevAjax = async () => {
                                         <SelectValue class="px-1 font-extrabold" :placeholder="lead?.lead_status?.name" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectGroup>
-                                            <SelectItem v-for="(leadStatus, index) in leadStatuses" :key="index" :value="leadStatus.id">
+                                        <SelectGroup v-for="[index, groupedLeadStatus] in Object.entries(groupedLeadStatuses)" :key="index">
+                                            <SelectLabel class="bg-gray-300">{{ index }}</SelectLabel>
+                                            <SelectItem v-for="(leadStatus, index) in groupedLeadStatus" :key="index" :value="leadStatus.id">
                                                 {{ leadStatus.name }}
                                             </SelectItem>
                                         </SelectGroup>

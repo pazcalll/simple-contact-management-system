@@ -68,27 +68,33 @@ class LeadService
         }
     }
 
-    public function updateLeadStatuses(): static
+    public function updateLeadStatuses(array $leadIds, int|string $leadStatusId): static
     {
-        Lead::whereIn('id', $this->formRequest->post('lead_ids'))
+        Lead::whereIn('id', $leadIds)
             ->update([
-                'lead_status_id' => $this->formRequest->post('lead_status_id'),
+                'lead_status_id' => $leadStatusId,
             ]);
 
         return $this;
     }
 
-    public function updateMassLeadAssignee(): static
+    public function updateMassLeadAssignee(
+        array $leadIds,
+        int|string|null $managerId = null,
+        int|string|null $supervisorId = null,
+        int|string|null $teamLeaderId = null,
+        int|string|null $staffId = null,
+    ): static
     {
-        $this->deleteMassLeadAssignee($this->formRequest->post('lead_ids'));
-        $leads = Lead::whereIn('id', $this->formRequest->post('lead_ids'))->get();
+        if ($managerId) {
+            $this->deleteMassLeadAssignee($leadIds);
+            $leads = Lead::whereIn('id', $leadIds)->get();
 
-        if ($this->formRequest->post('manager_id')) {
             $assigneeIds = array_filter([
-                $this->formRequest->post('manager_id') ?? null,
-                $this->formRequest->post('supervisor_id') ?? null,
-                $this->formRequest->post('team_leader_id') ?? null,
-                $this->formRequest->post('staff_id') ?? null,
+                $managerId ?? null,
+                $supervisorId ?? null,
+                $teamLeaderId ?? null,
+                $staffId ?? null,
             ], function ($value) {
                 return !is_null($value);
             });

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateLeadStatusRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class UpdateLeadStatusRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::user() != null;
     }
 
     /**
@@ -23,6 +24,8 @@ class UpdateLeadStatusRequest extends FormRequest
     {
         return [
             //
+            'lead_id' => ['required', 'exists:leads,id'],
+            'lead_status_id' => ['required', 'exists:lead_statuses,id'],
         ];
     }
 }

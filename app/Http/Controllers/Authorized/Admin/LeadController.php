@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Authorized\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admins\StoreAssignedLeadRequest as AdminsStoreAssignedLeadRequest;
+use App\Http\Requests\Admins\BulkAssignRequest;
 use App\Http\Requests\Admins\StoreAssigneeRequest;
 use App\Http\Requests\Admins\StoreLeadRequest;
+use App\Http\Requests\UpdateLeadStatusRequest;
 use App\Models\Lead;
 use App\Models\LeadStatus;
 use App\Models\Role;
@@ -138,14 +139,22 @@ class LeadController extends Controller
         }
     }
 
-    public function bulkAssignLeads(AdminsStoreAssignedLeadRequest $request)
+    public function bulkAssignLeads(BulkAssignRequest $request)
     {
         try {
             DB::beginTransaction();
             $this->leadService
-                ->setFormRequest($request)
-                ->updateLeadStatuses()
-                ->updateMassLeadAssignee();
+                ->updateLeadStatuses(
+                    $request->post('lead_ids'),
+                    $request->post('lead_status_id'),
+                )
+                ->updateMassLeadAssignee(
+                    $request->post('lead_ids'),
+                    $request->post('manager_id'),
+                    $request->post('supervisor_id'),
+                    $request->post('team_leader_id'),
+                    $request->post('staff_id'),
+                );
             DB::commit();
 
             return redirect()->back()->with('success', 'Bulk assign success');
@@ -153,6 +162,24 @@ class LeadController extends Controller
             //throw $th;
             DB::rollBack();
             return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+
+    public function updateLeadStatus(UpdateLeadStatusRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            $this->leadService->updateLeadStatuses(
+                [$request->post('lead_id')],
+                $request->post('lead_status_id'),
+            );
+
+            DB::commit();
+
+            return response()->json(['message' => 'Data has been updated']);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(['message' => $th->getMessage()]);
         }
     }
 }
