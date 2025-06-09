@@ -32,6 +32,7 @@ class BulkAssignRequest extends FormRequest
             'lead_status_id' => ['required', 'exists:lead_statuses,id'],
             'lead_ids' => ['required', 'array'],
             'lead_ids.*' => ['required', 'exists:leads,id'],
+            'is_unassign' => ['nullable', 'in:on,off'],
             'manager_id' => [
                 Rule::requiredIf(request()->post('supervisor_id') != null),
                 request('manager_id') ? 'exists:users,id' : null,

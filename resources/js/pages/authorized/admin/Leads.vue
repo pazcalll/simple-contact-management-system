@@ -34,6 +34,7 @@ const leadStatuses = ref<TLeadStatus[]>(page.props.leadStatuses as TLeadStatus[]
 const groupedLeadStatuses = ref<{ [group: string]: TLeadStatus[] }>({});
 const isDialogOpen = ref<boolean>(false);
 const statusLoading = ref<{ [leadId: number]: boolean }>({});
+const isUnassign = ref<'on'|'off'>('off');
 
 const managers = ref<TUser[]>([]);
 const supervisors = ref<TUser[]>([]);
@@ -123,6 +124,11 @@ const handleLeadStatusChanged = async (leadId: number, leadStatusId: AcceptableV
     statusLoading.value[leadId] = false;
 }
 
+const handleUnassignChecked = (e: Event) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    isUnassign.value = checked ? 'on' : 'off';
+}
+
 const handleSubmitBulkAssign = () => {
     const form = useForm({
         lead_ids: checkedIds.value,
@@ -131,6 +137,7 @@ const handleSubmitBulkAssign = () => {
         supervisor_id: selectedSupervisorId.value,
         team_leader_id: selectedTeamLeaderId.value,
         staff_id: selectedStaffId.value,
+        is_unassign: isUnassign.value,
     });
 
     form.submit('post', '/admins/leads/bulk-assign-leads', {
@@ -200,59 +207,69 @@ const prevAjax = async () => {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div class="w-full">
-                            <Label class="mb-1">Manager</Label>
-                            <Select v-model="selectedManagerId" @update:model-value="handleManagerSelected">
-                                <SelectTrigger class="w-full">
-                                    <SelectValue placeholder="Select Manager" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem v-for="manager in managers" :key="manager.id" :value="manager.id">
-                                            {{ manager.name }}
+                        <div v-if="isUnassign == 'off'" class="w-full space-y-3">
+                            <div class="w-full">
+                                <Label class="mb-1">Manager</Label>
+                                <Select v-model="selectedManagerId" @update:model-value="handleManagerSelected">
+                                    <SelectTrigger class="w-full">
+                                        <SelectValue placeholder="Select Manager" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectItem v-for="manager in managers" :key="manager.id" :value="manager.id">
+                                                {{ manager.name }}
+                                            </SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div class="w-full">
+                                <Label class="mb-1">Supervisor</Label>
+                                <Select v-model="selectedSupervisorId" @update:model-value="handleSupervisorSelected">
+                                    <SelectTrigger class="w-full">
+                                        <SelectValue placeholder="Select Supervisor"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem v-for="supervisor in supervisors" :key="supervisor.id" :value="supervisor.id">
+                                            {{ supervisor.name }}
                                         </SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div class="w-full">
+                                <Label class="mb-1">Team Leader</Label>
+                                <Select v-model="selectedTeamLeaderId" @update:model-value="handleTeamLeaderSelected">
+                                    <SelectTrigger class="w-full">
+                                        <SelectValue placeholder="Select Team Leader"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem v-for="teamLeader in teamLeaders" :key="teamLeader.id" :value="teamLeader.id">
+                                            {{ teamLeader.name }}
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div class="w-full">
+                                <Label class="mb-1">Staff</Label>
+                                <Select v-model="selectedStaffId">
+                                    <SelectTrigger class="w-full">
+                                        <SelectValue placeholder="Select Staff"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem v-for="staff in staffs" :key="staff.id" :value="staff.id">
+                                            {{ staff.name }}
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                         <div class="w-full">
-                            <Label class="mb-1">Supervisor</Label>
-                            <Select v-model="selectedSupervisorId" @update:model-value="handleSupervisorSelected">
-                                <SelectTrigger class="w-full">
-                                    <SelectValue placeholder="Select Supervisor"/>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem v-for="supervisor in supervisors" :key="supervisor.id" :value="supervisor.id">
-                                        {{ supervisor.name }}
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div class="w-full">
-                            <Label class="mb-1">Team Leader</Label>
-                            <Select v-model="selectedTeamLeaderId" @update:model-value="handleTeamLeaderSelected">
-                                <SelectTrigger class="w-full">
-                                    <SelectValue placeholder="Select Team Leader"/>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem v-for="teamLeader in teamLeaders" :key="teamLeader.id" :value="teamLeader.id">
-                                        {{ teamLeader.name }}
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div class="w-full">
-                            <Label class="mb-1">Staff</Label>
-                            <Select v-model="selectedStaffId">
-                                <SelectTrigger class="w-full">
-                                    <SelectValue placeholder="Select Staff"/>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem v-for="staff in staffs" :key="staff.id" :value="staff.id">
-                                        {{ staff.name }}
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <div class="flex justify-center space-x-1">
+                                <Input id="unassign" type="checkbox" class="w-[1rem]" @click="handleUnassignChecked" :checked="isUnassign == 'on'" />
+                                <Label for="unassign">
+                                    Unassign
+                                </Label>
+                            </div>
                         </div>
                     </template>
                 </BulkAssignDialog>

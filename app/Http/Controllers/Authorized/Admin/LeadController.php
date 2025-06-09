@@ -145,15 +145,16 @@ class LeadController extends Controller
             DB::beginTransaction();
             $this->leadService
                 ->updateLeadStatuses(
-                    $request->post('lead_ids'),
-                    $request->post('lead_status_id'),
+                    @$request->post('lead_ids'),
+                    @$request->post('lead_status_id'),
                 )
                 ->updateMassLeadAssignee(
-                    $request->post('lead_ids'),
-                    $request->post('manager_id'),
-                    $request->post('supervisor_id'),
-                    $request->post('team_leader_id'),
-                    $request->post('staff_id'),
+                    @$request->post('lead_ids'),
+                    @$request->post('manager_id'),
+                    @$request->post('supervisor_id'),
+                    @$request->post('team_leader_id'),
+                    @$request->post('staff_id'),
+                    @$request->post('is_unassign') == 'on' ? true : false,
                 );
             DB::commit();
 

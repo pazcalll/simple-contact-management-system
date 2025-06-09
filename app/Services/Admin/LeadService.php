@@ -84,8 +84,14 @@ class LeadService
         int|string|null $supervisorId = null,
         int|string|null $teamLeaderId = null,
         int|string|null $staffId = null,
+        bool $isUnassign = false,
     ): static
     {
+        if ($isUnassign) {
+            $this->deleteMassLeadAssignee($leadIds);
+            return $this;
+        }
+
         if ($managerId) {
             $this->deleteMassLeadAssignee($leadIds);
             $leads = Lead::whereIn('id', $leadIds)->get();
