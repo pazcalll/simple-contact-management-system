@@ -24,7 +24,7 @@ class LeadController extends Controller
     public function index()
     {
         //
-        $leads = $this->leadService->getPagination();
+        $leads = $this->leadService->getPagination(request('page'), request('length'));
         $leadStatuses = $this->leadStatusService->getAll();
         return Inertia::render('authorized/staff/Leads', [
             'leads'=> $leads,

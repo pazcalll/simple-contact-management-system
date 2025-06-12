@@ -14,10 +14,11 @@ class LeadService
         //
     }
 
-    public function getPagination()
+    public function getPagination($page = 1, $length = 15)
     {
-        $lead = Lead::whereHas('users', fn ($query) => $query->where('user_id', auth()->id()))
-            ->paginate();
+        $lead = Lead::with('leadStatus')
+            ->whereHas('users', fn ($query) => $query->where('user_id', auth()->id()))
+            ->paginate(perPage: $length, page: $page);
         return $lead;
     }
 }

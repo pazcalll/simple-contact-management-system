@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import DialogLeadDetail from '@/components/custom/DialogLeadDetail.vue';
 import TablePagination, { handleNext, handlePrev } from '@/components/custom/TablePagination.vue';
 import Alert from '@/components/ui/alert/Alert.vue';
 import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
@@ -24,8 +25,16 @@ import { ref } from 'vue';
 
 const page = usePage<TFlash>();
 const pagination = ref<TPagination<TLead[]>>(page.props.leads as TPagination<TLead[]>);
+const isDetailDialogOpen = ref<boolean>(false);
+
+const selectedLead = ref<TLead|null>(null);
 
 const leadStatuses = page.props.leadStatuses as TLeadStatus[];
+
+const handleOpenDialog = (lead: TLead) => {
+    selectedLead.value = lead;
+    isDetailDialogOpen.value = true;
+}
 
 const next = () => handleNext({ pagination: pagination, endpoint: '/admins/leads' });
 const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads' });
@@ -40,6 +49,11 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                     {{ page.props.flash.success }}
                 </AlertDescription>
             </Alert>
+            <DialogLeadDetail
+                :isDetailDialogOpen="isDetailDialogOpen"
+                :selectedLead="selectedLead"
+                @update:is-detail-dialog-open="isDetailDialogOpen = $event"
+            />
             <div class="grid grid-cols-5">
                 <Link :href="route('staffs.leads.create')">
                     <Button variant="default" class="w-full text-white"><PlusCircle></PlusCircle>Add Leads</Button>
@@ -57,7 +71,7 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                     </TableHeader>
                     <TableBody>
                         <TableRow v-for="lead in pagination.data" v-bind:key="lead?.id">
-                            <TableCell>
+                            <TableCell @click="() => handleOpenDialog(lead)">
                                 {{ lead.name }}
                             </TableCell>
                             <TableCell>
@@ -67,7 +81,7 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                                 {{ lead.email }}
                             </TableCell>
                             <TableCell>
-                                <Select>
+                                <Select v-model="lead.lead_status_id">
                                     <SelectTrigger
                                         class="w-full cursor-pointer"
                                         :style="{ borderColor: lead?.lead_status?.color, borderWidth: '2px' }"
