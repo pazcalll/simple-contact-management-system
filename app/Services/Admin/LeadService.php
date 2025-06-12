@@ -5,27 +5,13 @@ namespace App\Services\Admin;
 use App\Models\AssignedLead;
 use App\Models\Lead;
 use App\Models\LeadStatus;
-use Illuminate\Foundation\Http\FormRequest;
 
 class LeadService
 {
     /**
      * Create a new class instance.
      */
-    public function __construct(
-        private ?FormRequest $formRequest = null,
-    ) {}
-
-    public function getFormRequest(): ?FormRequest
-    {
-        return $this->formRequest;
-    }
-
-    public function setFormRequest(?FormRequest $formRequest): static
-    {
-        $this->formRequest = $formRequest;
-        return $this;
-    }
+    public function __construct() {}
 
     public function createLead(array $payload)
     {
