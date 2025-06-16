@@ -5,6 +5,7 @@ import Alert from '@/components/ui/alert/Alert.vue';
 import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
 import AlertTitle from '@/components/ui/alert/AlertTitle.vue';
 import Button from '@/components/ui/button/Button.vue';
+import DialogFooter from '@/components/ui/dialog/DialogFooter.vue';
 import Select from '@/components/ui/select/Select.vue';
 import SelectContent from '@/components/ui/select/SelectContent.vue';
 import SelectGroup from '@/components/ui/select/SelectGroup.vue';
@@ -19,17 +20,39 @@ import TableHeader from '@/components/ui/table/TableHeader.vue';
 import TableRow from '@/components/ui/table/TableRow.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { TFlash, TLead, TLeadStatus, TPagination } from '@/types/custom';
-import { Link, usePage } from '@inertiajs/vue3';
-import { PlusCircle } from 'lucide-vue-next';
+import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { Loader, PlusCircle, PlusIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const page = usePage<TFlash>();
 const pagination = ref<TPagination<TLead[]>>(page.props.leads as TPagination<TLead[]>);
 const isDetailDialogOpen = ref<boolean>(false);
+const isAddingNote = ref<boolean>(false);
 
 const selectedLead = ref<TLead|null>(null);
+const note = ref<string|null>();
 
 const leadStatuses = page.props.leadStatuses as TLeadStatus[];
+const formAddNote = useForm({
+    lead_id: selectedLead.value?.id,
+    note: note.value,
+});
+
+const handleAddNote = async () => {
+    isAddingNote.value = true;
+    formAddNote.submit(
+        'post',
+        '/staffs/lead-notes',
+        {
+            onSuccess: () => {
+                isDetailDialogOpen.value = false;
+            },
+            onFinish: () => {
+                isAddingNote.value = false;
+            }
+        }
+    );
+}
 
 const handleOpenDialog = (lead: TLead) => {
     selectedLead.value = lead;
@@ -50,10 +73,24 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                 </AlertDescription>
             </Alert>
             <DialogLeadDetail
-                :isDetailDialogOpen="isDetailDialogOpen"
+                :open="isDetailDialogOpen"
                 :selectedLead="selectedLead"
-                @update:is-detail-dialog-open="isDetailDialogOpen = $event"
-            />
+                @update:open="isDetailDialogOpen = $event"
+            >
+                <template #content>
+                    <form @submit.prevent="handleAddNote">
+                        <p>Notes:</p>
+                        <textarea v-model="note" class="p-2 border-2 border-gray-300 rounded-lg w-full"></textarea>
+                        <p class="text-red-500" v-if="formAddNote.errors.note">{{ formAddNote.errors.note }}</p>
+                        <DialogFooter class="sm:justify-start">
+                            <Button type="submit" variant="default" v-if="!isAddingNote">
+                                <PlusIcon></PlusIcon> Add Note
+                            </Button>
+                            <Loader v-if="isAddingNote" class="animate-spin" />
+                        </DialogFooter>
+                    </form>
+                </template>
+            </DialogLeadDetail>
             <div class="grid grid-cols-5">
                 <Link :href="route('staffs.leads.create')">
                     <Button variant="default" class="w-full text-white"><PlusCircle></PlusCircle>Add Leads</Button>
@@ -105,19 +142,19 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                         </TableRow>
                     </TableBody>
                 </Table>
-                <div class="flex w-full justify-center">
-                    <div class="w-full max-w-[14rem]">
-                        <TablePagination
-                            :current_page="pagination.current_page"
-                            :last_page="pagination.last_page"
-                            :per_page="pagination.per_page"
-                            :next="next"
-                            :prev="prev"
-                            @update:current_page="pagination.current_page = $event"
-                            @update:per_page="pagination.per_page = $event"
-                            @update:last_page="pagination.last_page = $event"
-                        />
-                    </div>
+            </div>
+            <div class="flex w-full justify-center">
+                <div class="w-full max-w-[14rem]">
+                    <TablePagination
+                        :current_page="pagination.current_page"
+                        :last_page="pagination.last_page"
+                        :per_page="pagination.per_page"
+                        :next="next"
+                        :prev="prev"
+                        @update:current_page="pagination.current_page = $event"
+                        @update:per_page="pagination.per_page = $event"
+                        @update:last_page="pagination.last_page = $event"
+                    />
                 </div>
             </div>
         </div>

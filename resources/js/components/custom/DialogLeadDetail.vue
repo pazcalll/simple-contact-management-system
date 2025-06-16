@@ -6,40 +6,26 @@ import DialogDescription from '../ui/dialog/DialogDescription.vue';
 import DialogHeader from '../ui/dialog/DialogHeader.vue';
 import DialogTitle from '../ui/dialog/DialogTitle.vue';
 import Label from '../ui/label/Label.vue';
-import { ref, watch } from 'vue';
-import DialogFooter from '../ui/dialog/DialogFooter.vue';
-import DialogClose from '../ui/dialog/DialogClose.vue';
-import Button from '../ui/button/Button.vue';
-import { PlusIcon } from 'lucide-vue-next';
 
-const props = defineProps<{
-    isDetailDialogOpen: boolean;
+defineProps<{
+    open: boolean;
     selectedLead: TLead|null;
 }>();
-const emit = defineEmits(['update:is-detail-dialog-open']);
+const emit = defineEmits(['update:open', 'update:selected-lead']);
 
-const isDetailDialogOpen = ref<boolean>(props.isDetailDialogOpen ?? false);
-const selectedLead = ref<TLead|null>(props.selectedLead);
+const height = window.innerHeight >= 800 ? '24rem' : '12rem';
 
-watch(
-    () => props.isDetailDialogOpen,
-    (val) => isDetailDialogOpen.value = val ?? false
-);
-
-watch(
-    () => props.selectedLead,
-    (val) => selectedLead.value = val ?? null,
-)
-
-watch(
-    isDetailDialogOpen,
-    (val) => emit('update:is-detail-dialog-open', val),
-)
-
+function onDialogUpdateOpen(val: boolean) {
+    emit('update:open', val);
+    if (!val) emit('update:selected-lead', null);
+}
 </script>
 
 <template>
-    <Dialog :open="isDetailDialogOpen" @update:open="emit('update:is-detail-dialog-open', $event)">
+    <Dialog
+        :open="open"
+        @update:open="onDialogUpdateOpen"
+    >
         <DialogContent class="sm:max-w-[25rem] lg:max-w-[40rem]">
             <DialogHeader>
                 <DialogTitle>Detail</DialogTitle>
@@ -74,17 +60,9 @@ watch(
                 </div>
             </div>
             <div class="w-full">
-                <p>Notes:</p>
-                <textarea class="border-2 border-gray-300 rounded-lg w-full"></textarea>
-                <DialogFooter class="sm:justify-start">
-                    <DialogClose as-child>
-                        <Button type="submit" variant="default">
-                            <PlusIcon></PlusIcon> Add Note
-                        </Button>
-                    </DialogClose>
-                </DialogFooter>
+                <slot name="content"></slot>
             </div>
-            <div class="w-full max-h-[12rem] space-y-[1rem] overflow-y-auto">
+            <div :class="`w-full max-h-[${height}] space-y-[1rem] overflow-y-auto`">
                 <div class="w-full">
                     <div class="w-full flex justify-between">
                         <Label class="font-bold">Name</Label>

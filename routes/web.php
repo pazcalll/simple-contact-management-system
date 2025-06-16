@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Authorized\Admin;
 use App\Http\Controllers\Authorized\Staff;
+use App\Http\Controllers\Authorized\LeadNoteController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -31,6 +32,7 @@ Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])
 
 Route::prefix('staffs')->name('staffs.')->middleware(['role:'.Role::ROLE_STAFF])->group(function () {
     Route::resource('leads', Staff\LeadController::class);
+    Route::resource('lead-notes', Staff\LeadNoteController::class);
 });
 
 require __DIR__.'/settings.php';
