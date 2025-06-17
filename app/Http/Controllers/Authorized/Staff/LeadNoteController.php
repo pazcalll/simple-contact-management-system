@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Authorized\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Authorized\StoreLeadNoteRequest;
+use App\Models\Lead;
 use App\Services\Staff\LeadNoteService;
 use App\Services\Staff\LeadService;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 
 class LeadNoteController extends Controller
 {
@@ -17,10 +17,20 @@ class LeadNoteController extends Controller
         private LeadService $leadService = new LeadService(),
     ) {}
 
-    public function store(StoreLeadNoteRequest $request)
+    public function index(Lead $lead)
+    {
+        if (request()->header('X-Request-Format') == 'json') {
+            return new JsonResponse(
+                $this->leadNoteService->get($lead)
+            );
+        }
+        return redirect()->back();
+    }
+
+    public function store(Lead $lead, StoreLeadNoteRequest $request)
     {
         $this->leadNoteService->create(
-            $this->leadService->getOneById($request->get('lead_id')),
+            $lead,
             Auth::user(),
             $request->get('note'),
         );

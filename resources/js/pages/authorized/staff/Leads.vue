@@ -18,8 +18,9 @@ import TableCell from '@/components/ui/table/TableCell.vue';
 import TableHead from '@/components/ui/table/TableHead.vue';
 import TableHeader from '@/components/ui/table/TableHeader.vue';
 import TableRow from '@/components/ui/table/TableRow.vue';
+import { getLeadNotesJson } from '@/data/staffs/lead-notes';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { TFlash, TLead, TLeadStatus, TPagination } from '@/types/custom';
+import { TFlash, TLead, TLeadNote, TLeadStatus, TPagination } from '@/types/custom';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 import { Loader, PlusCircle, PlusIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
@@ -30,20 +31,21 @@ const isDetailDialogOpen = ref<boolean>(false);
 const isAddingNote = ref<boolean>(false);
 
 const selectedLead = ref<TLead|null>(null);
-const note = ref<string|null>();
 
 const leadStatuses = page.props.leadStatuses as TLeadStatus[];
 const formAddNote = useForm({
-    lead_id: selectedLead.value?.id,
-    note: note.value,
+    note: null,
 });
 
 const handleAddNote = async () => {
     isAddingNote.value = true;
     formAddNote.submit(
         'post',
-        '/staffs/lead-notes',
+        `/staffs/leads/${selectedLead.value?.id}/notes`,
         {
+            onBefore: (data) => {
+                console.log(data)
+            },
             onSuccess: () => {
                 isDetailDialogOpen.value = false;
             },
@@ -54,8 +56,19 @@ const handleAddNote = async () => {
     );
 }
 
-const handleOpenDialog = (lead: TLead) => {
+const handleGetNotes = async () => {
+    const response = await getLeadNotesJson(selectedLead.value?.id ?? 0);
+    if (response && typeof response === 'object' && 'message' in response) {
+        console.log(response);
+        return;
+    }
+    return response as TLeadNote[];
+}
+
+const handleOpenDialog = async (lead: TLead) => {
     selectedLead.value = lead;
+    if (selectedLead.value) selectedLead.value.lead_notes = await handleGetNotes();
+
     isDetailDialogOpen.value = true;
 }
 
@@ -80,7 +93,7 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                 <template #content>
                     <form @submit.prevent="handleAddNote">
                         <p>Notes:</p>
-                        <textarea v-model="note" class="p-2 border-2 border-gray-300 rounded-lg w-full"></textarea>
+                        <textarea v-model="formAddNote.note" class="p-2 border-2 border-gray-300 rounded-lg w-full"></textarea>
                         <p class="text-red-500" v-if="formAddNote.errors.note">{{ formAddNote.errors.note }}</p>
                         <DialogFooter class="sm:justify-start">
                             <Button type="submit" variant="default" v-if="!isAddingNote">
@@ -108,8 +121,8 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                     </TableHeader>
                     <TableBody>
                         <TableRow v-for="lead in pagination.data" v-bind:key="lead?.id">
-                            <TableCell @click="() => handleOpenDialog(lead)">
-                                {{ lead.name }}
+                            <TableCell @click="() => handleOpenDialog(lead)" class="cursor-pointer">
+                                <u class="text-blue-500">{{ lead.name }}</u>
                             </TableCell>
                             <TableCell>
                                 {{ lead.mobile_number }}

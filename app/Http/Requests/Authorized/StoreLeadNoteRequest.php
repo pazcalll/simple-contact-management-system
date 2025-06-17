@@ -24,7 +24,6 @@ class StoreLeadNoteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'lead_id' => ['required', 'exists:leads,id', new OwnedByAuthorizedUser],
             'note' => ['required', 'max:200'],
         ];
     }

@@ -62,27 +62,13 @@ function onDialogUpdateOpen(val: boolean) {
             <div class="w-full">
                 <slot name="content"></slot>
             </div>
-            <div :class="`w-full max-h-[${height}] space-y-[1rem] overflow-y-auto`">
-                <div class="w-full">
+            <div :class="`w-full max-h-[${height}] space-y-[1rem] overflow-y-auto`" v-if="selectedLead?.lead_notes !== null">
+                <div class="w-full rounded-md p-2 hover:bg-gray-200" v-for="(note, index) in selectedLead.lead_notes" v-bind:key="index">
                     <div class="w-full flex justify-between">
-                        <Label class="font-bold">Name</Label>
-                        <Label class="text-gray-400">2023-01-01</Label>
+                        <Label class="font-bold">{{ note.user.name }}</Label>
+                        <Label class="text-gray-400">{{ new Date(note.created_at).toISOString().slice(0, 10) }}</Label>
                     </div>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Culpa mollitia quisquam delectus dolorem? Sit explicabo officia doloribus ad nam. Nesciunt dicta aperiam ex voluptas aliquid pariatur ea consequuntur consectetur laborum.</p>
-                </div>
-                <div class="w-full mt-3">
-                    <div class="w-full flex justify-between">
-                        <Label class="font-bold">Name</Label>
-                        <Label class="text-gray-400">2023-01-01</Label>
-                    </div>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Culpa mollitia quisquam delectus dolorem? Sit explicabo officia doloribus ad nam. Nesciunt dicta aperiam ex voluptas aliquid pariatur ea consequuntur consectetur laborum.</p>
-                </div>
-                <div class="w-full mt-3">
-                    <div class="w-full flex justify-between">
-                        <Label class="font-bold">Name</Label>
-                        <Label class="text-gray-400">2023-01-01</Label>
-                    </div>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Culpa mollitia quisquam delectus dolorem? Sit explicabo officia doloribus ad nam. Nesciunt dicta aperiam ex voluptas aliquid pariatur ea consequuntur consectetur laborum.</p>
+                    <p>{{ note.note }}</p>
                 </div>
             </div>
         </DialogContent>
