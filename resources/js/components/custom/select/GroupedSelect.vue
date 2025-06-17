@@ -6,7 +6,7 @@ import SelectItem from '@/components/ui/select/SelectItem.vue';
 import SelectLabel from '@/components/ui/select/SelectLabel.vue';
 import SelectTrigger from '@/components/ui/select/SelectTrigger.vue';
 import SelectValue from '@/components/ui/select/SelectValue.vue';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps<{
   selectedId: number|string|null;
@@ -16,10 +16,18 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:selected-id']);
 
-// Find the currently selected item based on selectedId
+// Create a reactive reference for the selected value
+const selectedValue = ref(props.selectedId);
+
+// Watch for changes in props.selectedId and update the local selectedValue
+watch(() => props.selectedId, (newValue) => {
+  selectedValue.value = newValue;
+});
+
+// Find the currently selected item based on selectedValue
 const selectedItem = computed(() => {
-  if (props.selectedId === null) return null;
-  return props.convertable.find(item => item.id === props.selectedId) || null;
+  if (selectedValue.value === null) return null;
+  return props.convertable.find(item => item.id === selectedValue.value) || null;
 });
 
 // Compute border style based on the selected item
@@ -41,12 +49,13 @@ const groupableArray = <T extends { name: string, id: number, group: string, col
 
 // Handle item selection
 const handleSelectionChange = (item: any) => {
+  selectedValue.value = item?.id || null;
   emit('update:selected-id', item?.id || null);
 };
 </script>
 
 <template>
-  <Select @update:model-value="handleSelectionChange">
+  <Select :model-value="selectedValue" @update:model-value="handleSelectionChange">
     <SelectTrigger class="w-full" :style="borderStyle">
         <SelectValue :placeholder="`${selectedItem?.name ?? placeholder ?? 'Select item'}`" />
     </SelectTrigger>

@@ -74,15 +74,21 @@ const handleGetNotes = async () => {
 
 const handleSelectedStatusChange = (leadId: number, event: AcceptableValue) => {
     const toUpdateLead = pagination.value.data.find(lead => lead.id === leadId);
-
     const form = useForm({
         lead_id: toUpdateLead?.id,
         lead_status_id: event as number,
     });
     form.patch(`/staffs/leads/${toUpdateLead?.id}/status`, {
+        preserveScroll: true,
+        preserveState: true,
         onError: (err) => {
             console.log(err)
         },
+        onSuccess: (data) => {
+            submissionAlertState.value.isSuccess = true;
+            const flash = (data.props as unknown as TFlash).flash;
+            submissionAlertState.value.message = flash.success || 'Lead status updated successfully';
+        }
     })
 }
 
