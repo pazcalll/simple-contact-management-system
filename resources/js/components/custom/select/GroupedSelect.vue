@@ -6,6 +6,7 @@ import SelectItem from '@/components/ui/select/SelectItem.vue';
 import SelectLabel from '@/components/ui/select/SelectLabel.vue';
 import SelectTrigger from '@/components/ui/select/SelectTrigger.vue';
 import SelectValue from '@/components/ui/select/SelectValue.vue';
+import { AcceptableValue } from 'reka-ui';
 import { computed, ref, watch } from 'vue';
 
 const props = defineProps<{
@@ -48,21 +49,21 @@ const groupableArray = <T extends { name: string, id: number, group: string, col
 };
 
 // Handle item selection
-const handleSelectionChange = (item: any) => {
-  selectedValue.value = item?.id || null;
-  emit('update:selected-id', item?.id || null);
+const handleSelectionChange = (id: AcceptableValue) => {
+  selectedValue.value = (id || null) as number;
+  emit('update:selected-id', id || null);
 };
 </script>
 
 <template>
-  <Select :model-value="selectedValue" @update:model-value="handleSelectionChange">
+  <Select v-model="selectedValue" @update:model-value="handleSelectionChange">
     <SelectTrigger class="w-full" :style="borderStyle">
         <SelectValue :placeholder="`${selectedItem?.name ?? placeholder ?? 'Select item'}`" />
     </SelectTrigger>
     <SelectContent>
         <SelectGroup v-for="[_groupableIndex, groupable] in Object.entries(groupableArray(convertable))" :key="_groupableIndex">
             <SelectLabel class="bg-gray-300">{{ _groupableIndex }}</SelectLabel>
-            <SelectItem v-for="(item, _itemIndex) in groupable" :key="_itemIndex" :value="item">
+            <SelectItem v-for="(item, _itemIndex) in groupable" :key="_itemIndex" :value="item.id">
                 <div class="flex items-center">
                   <span v-if="item.color" class="inline-block w-3 h-3 mr-2 rounded-full" :style="{ backgroundColor: item.color }"></span>
                   {{ item.name }}

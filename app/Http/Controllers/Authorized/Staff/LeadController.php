@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Authorized\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Authorized\MassUpdateLeadStatusIdRequest;
 use App\Http\Requests\UpdateLeadStatusRequest;
 use App\Services\Staff\LeadService;
 use App\Services\Staff\LeadStatusService;
@@ -93,6 +94,19 @@ class LeadController extends Controller
 
         return redirect()->back()->with([
             'success' => 'Lead status updated successfully.'
+        ]);
+    }
+
+    public function massUpdateStatus(MassUpdateLeadStatusIdRequest $request)
+    {
+        //
+        $this->leadService->updateLeadStatuses(
+            leadIds: $request->input('lead_ids'),
+            leadStatusId: $request->input('lead_status_id')
+        );
+
+        return redirect()->back()->with([
+            'success' => 'Lead statuses updated successfully.'
         ]);
     }
 }

@@ -32,6 +32,7 @@ Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])
 Route::prefix('staffs')->name('staffs.')->middleware(['role:'.Role::ROLE_STAFF])->group(function () {
     Route::resource('leads/{lead}/notes', Staff\LeadNoteController::class);
     Route::patch('leads/{lead}/status', [Staff\LeadController::class, 'updateStatus']);
+    Route::patch('leads/mass-update-status', [Staff\LeadController::class, 'massUpdateStatus']);
     Route::resource('leads', Staff\LeadController::class);
 });
 

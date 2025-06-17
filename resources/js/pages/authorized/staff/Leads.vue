@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import SubmissionAlert from '@/components/custom/alert/SubmissionAlert.vue';
+import BulkAssignDialog from '@/components/custom/dialog/BulkAssignDialog.vue';
 import DialogLeadDetail from '@/components/custom/dialog/DialogLeadDetail.vue';
 import GroupedSelect from '@/components/custom/select/GroupedSelect.vue';
 import TablePagination, { handleNext, handlePrev } from '@/components/custom/table/TablePagination.vue';
@@ -8,6 +9,8 @@ import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
 import AlertTitle from '@/components/ui/alert/AlertTitle.vue';
 import Button from '@/components/ui/button/Button.vue';
 import DialogFooter from '@/components/ui/dialog/DialogFooter.vue';
+import Input from '@/components/ui/input/Input.vue';
+import Label from '@/components/ui/label/Label.vue';
 import Select from '@/components/ui/select/Select.vue';
 import SelectContent from '@/components/ui/select/SelectContent.vue';
 import SelectGroup from '@/components/ui/select/SelectGroup.vue';
@@ -37,11 +40,23 @@ const submissionAlertState = ref({
     message: page.props.flash.success || page.props.flash.error || ''
 })
 
+const isDialogOpen = ref<boolean>(false);
+const checkedIds = ref<number[]>([]);
+const selectedLeadStatusId = ref<number|null>(null);
+
 const selectedLead = ref<TLead|null>(null);
 
 const leadStatuses = page.props.leadStatuses as TLeadStatus[];
 const formAddNote = useForm({
     note: null,
+});
+
+const formBulkAssign = useForm<{
+    lead_status_id: number|null;
+    lead_ids: number[];
+}>({
+    lead_status_id: null,
+    lead_ids: [],
 });
 
 const handleAddNote = async () => {
@@ -61,6 +76,40 @@ const handleAddNote = async () => {
             }
         }
     );
+}
+
+const handleLeadStatusId = async (statusId: AcceptableValue) => {
+    const status = leadStatuses.find(leadStatus => leadStatus.id == statusId as number)
+    selectedLeadStatusId.value = status?.id as number|null;
+    console.log(selectedLeadStatusId.value);
+}
+
+const enqueueId = (id: number) => {
+    if (!checkedIds.value) {
+        checkedIds.value = [id];
+    } else if (!checkedIds.value.includes(id)) {
+        checkedIds.value = [...checkedIds.value, id];
+    }
+};
+
+const dequeueId = (id: number) => {
+    if (checkedIds.value) {
+        checkedIds.value = checkedIds.value.filter(item => item !== id);
+        if (checkedIds.value.length === 0) {
+            checkedIds.value = [];
+        }
+    }
+};
+
+const isQueued = (id: number) => {
+    return checkedIds.value.includes(id);
+}
+
+const handleCheckbox = (id: number) => {
+    const isQueuedVal = isQueued(id);
+    if (isQueuedVal) dequeueId(id);
+    else if (!isQueuedVal) enqueueId(id);
+    else console.log('unidentified action');
 }
 
 const handleGetNotes = async () => {
@@ -88,6 +137,25 @@ const handleSelectedStatusChange = (leadId: number, event: AcceptableValue) => {
             submissionAlertState.value.isSuccess = true;
             const flash = (data.props as unknown as TFlash).flash;
             submissionAlertState.value.message = flash.success || 'Lead status updated successfully';
+        }
+    })
+}
+
+const handleSubmitBulkAssign = () => {
+    formBulkAssign.lead_ids = checkedIds.value;
+    formBulkAssign.lead_status_id = selectedLeadStatusId.value;
+    formBulkAssign.patch('/staffs/leads/mass-update-status', {
+        preserveState: false,
+        onError: (err) => {
+            console.log(err);
+        },
+        onSuccess: (data) => {
+            submissionAlertState.value.isSuccess = true;
+            const flash = (data.props as unknown as TFlash).flash;
+            submissionAlertState.value.message = flash.success || 'Bulk action completed successfully';
+            isDialogOpen.value = false;
+            checkedIds.value = [];
+            selectedLeadStatusId.value = null;
         }
     })
 }
@@ -129,15 +197,33 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                     </form>
                 </template>
             </DialogLeadDetail>
-            <div class="grid grid-cols-5">
+            <div class="grid grid-cols-5 gap-2">
                 <Link :href="route('staffs.leads.create')">
                     <Button variant="default" class="w-full text-white"><PlusCircle></PlusCircle>Add Leads</Button>
                 </Link>
+                <BulkAssignDialog @submit="handleSubmitBulkAssign" v-model:open="isDialogOpen">
+                    <template #trigger>
+                        <Button variant="secondary" class="w-full"> <PlusSquare></PlusSquare>Bulk Action</Button>
+                    </template>
+                    <template #content>
+                        <div class="w-full">
+                            <Label class="mb-1">Status</Label>
+                            <GroupedSelect
+                                v-model:selected-id="selectedLeadStatusId"
+                                placeholder="Select lead status"
+                                :convertable="leadStatuses"
+                                @update:selected-id="handleLeadStatusId"
+                            />
+                            <p class="text-red-500" v-if="formAddNote.errors.note">{{ formAddNote.errors.note }}</p>
+                        </div>
+                    </template>
+                </BulkAssignDialog>
             </div>
             <div class="w-full rounded-lg border">
                 <Table class="w-full">
                     <TableHeader class="text-[12pt]">
                         <TableRow class="bg-[#F5F5F4] dark:bg-[#1C1C1A]">
+                            <TableHead>#</TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Mobile</TableHead>
                             <TableHead>Email</TableHead>
@@ -146,6 +232,9 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                     </TableHeader>
                     <TableBody>
                         <TableRow v-for="lead in pagination.data" v-bind:key="lead?.id">
+                            <TableCell>
+                                <Input type="checkbox" class="cursor-pointer" @click="handleCheckbox(lead.id)" :checked="isQueued(lead.id)" />
+                            </TableCell>
                             <TableCell @click="() => handleOpenDialog(lead)" class="cursor-pointer">
                                 <u class="text-blue-500">{{ lead.name }}</u>
                             </TableCell>
