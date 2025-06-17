@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Ref, ref, watch } from 'vue';
-import Button from '../ui/button/Button.vue';
+import Button from '@/components/ui/button/Button.vue';
 import { ChevronLeft } from 'lucide-vue-next';
 import { ChevronRight } from 'lucide-vue-next';
-import Popover from '../ui/popover/Popover.vue';
-import PopoverTrigger from '../ui/popover/PopoverTrigger.vue';
-import PopoverContent from '../ui/popover/PopoverContent.vue';
-import Input from '../ui/input/Input.vue';
+import Popover from '@/components/ui/popover/Popover.vue';
+import PopoverTrigger from '@/components/ui/popover/PopoverTrigger.vue';
+import PopoverContent from '@/components/ui/popover/PopoverContent.vue';
+import Input from '@/components/ui/input/Input.vue';
 import { TPagination } from '@/types/custom';
 
 const props = defineProps<{
