@@ -55,7 +55,7 @@ type TLead = {
     is_private: boolean;
     lead_status_id: number;
     lead_status?: TLeadStatus;
-    lead_notes?: TLeadNote[]|null;
+    lead_notes?: TLeadNote[];
 };
 
 type TLeadNote = {

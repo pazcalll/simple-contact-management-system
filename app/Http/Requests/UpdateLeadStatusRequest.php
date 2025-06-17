@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Role;
+use App\Rules\OwnedByAuthorizedUser;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,10 +24,19 @@ class UpdateLeadStatusRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $user = Auth::user();
+        $hasRoleAdmin = $user->hasRole([Role::ROLE_ADMIN]);
+
+        $validation = [
             //
-            'lead_id' => ['required', 'exists:leads,id'],
+            'lead_id' => ['required', 'exists:leads,id', new OwnedByAuthorizedUser],
             'lead_status_id' => ['required', 'exists:lead_statuses,id'],
         ];
+
+        if ($hasRoleAdmin) {
+            $validation['lead_id'] = ['required', 'exists:leads,id'];
+        }
+
+        return $validation;
     }
 }

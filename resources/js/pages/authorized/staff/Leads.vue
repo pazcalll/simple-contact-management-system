@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import SubmissionAlert from '@/components/custom/alert/SubmissionAlert.vue';
 import DialogLeadDetail from '@/components/custom/dialog/DialogLeadDetail.vue';
 import GroupedSelect from '@/components/custom/select/GroupedSelect.vue';
 import TablePagination, { handleNext, handlePrev } from '@/components/custom/table/TablePagination.vue';
@@ -24,12 +25,17 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { TFlash, TLead, TLeadNote, TLeadStatus, TPagination } from '@/types/custom';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 import { Loader, PlusCircle, PlusIcon } from 'lucide-vue-next';
+import { AcceptableValue } from 'reka-ui';
 import { ref } from 'vue';
 
 const page = usePage<TFlash>();
 const pagination = ref<TPagination<TLead[]>>(page.props.leads as TPagination<TLead[]>);
 const isDetailDialogOpen = ref<boolean>(false);
 const isAddingNote = ref<boolean>(false);
+const submissionAlertState = ref({
+    isSuccess: page.props.flash.success != null,
+    message: page.props.flash.success || page.props.flash.error || ''
+})
 
 const selectedLead = ref<TLead|null>(null);
 
@@ -66,6 +72,20 @@ const handleGetNotes = async () => {
     return response as TLeadNote[];
 }
 
+const handleSelectedStatusChange = (leadId: number, event: AcceptableValue) => {
+    const toUpdateLead = pagination.value.data.find(lead => lead.id === leadId);
+
+    const form = useForm({
+        lead_id: toUpdateLead?.id,
+        lead_status_id: event as number,
+    });
+    form.patch(`/staffs/leads/${toUpdateLead?.id}/status`, {
+        onError: (err) => {
+            console.log(err)
+        },
+    })
+}
+
 const handleOpenDialog = async (lead: TLead) => {
     selectedLead.value = lead;
 
@@ -80,12 +100,10 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
 <template>
     <AppLayout>
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <Alert v-if="page.props.flash.success" class="bg-green-500">
-                <AlertTitle class="text-white">Success</AlertTitle>
-                <AlertDescription class="text-white">
-                    {{ page.props.flash.success }}
-                </AlertDescription>
-            </Alert>
+            <SubmissionAlert
+                :isSuccess="submissionAlertState.isSuccess"
+                :message="submissionAlertState.message"
+            />
             <DialogLeadDetail
                 :open="isDetailDialogOpen"
                 :selectedLead="selectedLead"
@@ -132,25 +150,12 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                                 {{ lead.email }}
                             </TableCell>
                             <TableCell>
-                                <Select v-model="lead.lead_status_id" v-if="false">
-                                    <SelectTrigger
-                                        class="w-full cursor-pointer"
-                                        :style="{ borderColor: lead?.lead_status?.color, borderWidth: '2px' }"
-                                    >
-                                        <SelectValue class="px-1 font-extrabold" :placeholder="lead?.lead_status?.name" />
-                                    </SelectTrigger>
-                                    <SelectContent @change="console.log('clicked')">
-                                        <SelectGroup>
-                                            <SelectItem v-for="(leadStatus, index) in leadStatuses" :key="index" :value="leadStatus.id">
-                                                {{ leadStatus.name }}
-                                            </SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
                                 <GroupedSelect
                                     :selectedId="lead.lead_status_id"
                                     placeholder="Select lead status"
                                     :convertable="leadStatuses"
+                                    @update:selected-id="(event) => handleSelectedStatusChange(lead.id, event)"
+                                    v-bind:key="lead.id"
                                 />
                             </TableCell>
                         </TableRow>

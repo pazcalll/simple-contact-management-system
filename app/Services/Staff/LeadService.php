@@ -3,10 +3,13 @@
 namespace App\Services\Staff;
 
 use App\Models\Lead;
+use App\Traits\Services\Lead\CanUpdateStatus;
 use Illuminate\Support\Facades\Auth;
 
 class LeadService
 {
+    use CanUpdateStatus;
+
     /**
      * Create a new class instance.
      */

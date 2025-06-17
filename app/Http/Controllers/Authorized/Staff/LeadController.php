@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Authorized\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateLeadStatusRequest;
 use App\Services\Staff\LeadService;
 use App\Services\Staff\LeadStatusService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -79,5 +81,18 @@ class LeadController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function updateStatus(UpdateLeadStatusRequest $request, string $id)
+    {
+        //
+        $this->leadService->updateLeadStatuses(
+            leadIds: [$id],
+            leadStatusId: $request->input('lead_status_id')
+        );
+
+        return redirect()->back()->with([
+            'success' => 'Lead status updated successfully.'
+        ]);
     }
 }
