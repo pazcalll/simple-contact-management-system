@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ref } from 'vue';
 import { TFlash, TPagination, TUser } from '@/types/custom';
-import TablePagination, { handleNext, handlePrev } from '@/components/custom/TablePagination.vue';
+import TablePagination, { handleNext, handlePrev } from '@/components/custom/table/TablePagination.vue';
 import Button from '@/components/ui/button/Button.vue';
 import { UserIcon } from 'lucide-vue-next';
 import { router, usePage } from '@inertiajs/vue3';

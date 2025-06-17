@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import DialogLeadDetail from '@/components/custom/DialogLeadDetail.vue';
-import TablePagination, { handleNext, handlePrev } from '@/components/custom/TablePagination.vue';
+import DialogLeadDetail from '@/components/custom/dialog/DialogLeadDetail.vue';
+import GroupedSelect from '@/components/custom/select/GroupedSelect.vue';
+import TablePagination, { handleNext, handlePrev } from '@/components/custom/table/TablePagination.vue';
 import Alert from '@/components/ui/alert/Alert.vue';
 import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
 import AlertTitle from '@/components/ui/alert/AlertTitle.vue';
@@ -67,9 +68,9 @@ const handleGetNotes = async () => {
 
 const handleOpenDialog = async (lead: TLead) => {
     selectedLead.value = lead;
-    if (selectedLead.value) selectedLead.value.lead_notes = await handleGetNotes();
 
     isDetailDialogOpen.value = true;
+    if (selectedLead.value) selectedLead.value.lead_notes = await handleGetNotes();
 }
 
 const next = () => handleNext({ pagination: pagination, endpoint: '/admins/leads' });
@@ -131,7 +132,7 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                                 {{ lead.email }}
                             </TableCell>
                             <TableCell>
-                                <Select v-model="lead.lead_status_id">
+                                <Select v-model="lead.lead_status_id" v-if="false">
                                     <SelectTrigger
                                         class="w-full cursor-pointer"
                                         :style="{ borderColor: lead?.lead_status?.color, borderWidth: '2px' }"
@@ -146,6 +147,11 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
+                                <GroupedSelect
+                                    :selectedId="lead.lead_status_id"
+                                    placeholder="Select lead status"
+                                    :convertable="leadStatuses"
+                                />
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="pagination.data.length < 1">

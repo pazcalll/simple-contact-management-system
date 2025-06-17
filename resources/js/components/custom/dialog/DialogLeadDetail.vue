@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { TLead } from '@/types/custom';
-import Dialog from '../ui/dialog/Dialog.vue';
-import DialogContent from '../ui/dialog/DialogContent.vue';
-import DialogDescription from '../ui/dialog/DialogDescription.vue';
-import DialogHeader from '../ui/dialog/DialogHeader.vue';
-import DialogTitle from '../ui/dialog/DialogTitle.vue';
-import Label from '../ui/label/Label.vue';
+import Dialog from '../../ui/dialog/Dialog.vue';
+import DialogContent from '../../ui/dialog/DialogContent.vue';
+import DialogDescription from '../../ui/dialog/DialogDescription.vue';
+import DialogHeader from '../../ui/dialog/DialogHeader.vue';
+import DialogTitle from '../../ui/dialog/DialogTitle.vue';
+import Label from '../../ui/label/Label.vue';
 
 defineProps<{
     open: boolean;

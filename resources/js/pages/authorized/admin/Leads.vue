@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import BulkAssignDialog from '@/components/custom/admin/BulkAssignDialog.vue';
-import TablePaginationAjax, { handleNextAJAX, handlePrevAJAX, handleReloadAJAX } from '@/components/custom/TablePaginationAjax.vue';
+import BulkAssignDialog from '@/components/custom/dialog/BulkAssignDialog.vue';
+import TablePaginationAjax, { handleNextAJAX, handlePrevAJAX, handleReloadAJAX } from '@/components/custom/table/TablePaginationAjax.vue';
 import Alert from '@/components/ui/alert/Alert.vue';
 import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
 import AlertTitle from '@/components/ui/alert/AlertTitle.vue';
