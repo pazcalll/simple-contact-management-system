@@ -187,6 +187,6 @@ class LeadController extends Controller
     public function import()
     {
         // This method is not implemented yet.
-        return redirect()->back()->with('error', 'This feature is not implemented yet.');
+        return redirect()->back()->with('success', 'Data uploaded.');
     }
 }

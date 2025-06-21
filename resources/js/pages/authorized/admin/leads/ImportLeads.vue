@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Button from '@/components/ui/button/Button.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
+import DialogClose from '@/components/ui/dialog/DialogClose.vue';
 import DialogContent from '@/components/ui/dialog/DialogContent.vue';
 import DialogDescription from '@/components/ui/dialog/DialogDescription.vue';
 import DialogFooter from '@/components/ui/dialog/DialogFooter.vue';
@@ -9,10 +10,16 @@ import DialogTitle from '@/components/ui/dialog/DialogTitle.vue';
 import DialogTrigger from '@/components/ui/dialog/DialogTrigger.vue';
 import Input from '@/components/ui/input/Input.vue';
 import Label from '@/components/ui/label/Label.vue';
+import { useForm } from '@inertiajs/vue3';
 import { CopyCheckIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const file = ref<File | null>(null);
+const isOpen = ref(false);
+
+const form = useForm({
+    file: null as File | null,
+});
 
 function onFileChange(event: Event) {
     const target = event.target as HTMLInputElement;
@@ -23,12 +30,31 @@ function onFileChange(event: Event) {
     }
 }
 
+function submit() {
+    if (file.value) {
+        form.file = file.value;
+        form.post('/admins/leads/import', {
+            onSuccess: () => {
+                // Reset the file input after successful submission
+                file.value = null;
+                // Optionally, you can close the dialog or reset the form
+                isOpen.value = false;
+            },
+            onError: (errors) => {
+                console.error('Import failed:', errors);
+            },
+        });
+    } else {
+        alert('Please select a CSV file to upload.');
+    }
+}
+
 </script>
 
 <template>
-    <Dialog>
+    <Dialog :open="isOpen">
         <DialogTrigger>
-            <Button class="w-full" variant="secondary">
+            <Button class="w-full" variant="secondary" @click="isOpen = true">
                 <CopyCheckIcon></CopyCheckIcon>
                 Import Leads
             </Button>
@@ -41,6 +67,10 @@ function onFileChange(event: Event) {
                 </DialogDescription>
             </DialogHeader>
             <div class="space-y-4">
+                <p class="text-sm text-gray-600">
+                    Before importing, please ensure that your CSV file is formatted correctly.
+                    You can download the templates below to help you format your data correctly:
+                </p>
                 <div class="space-x-2 space-y-2 w-full">
                     <Button class="bg-blue-500 hover:bg-blue-600 text-white">
                         <a href="/leads/template" class="w-full" target="_blank">
@@ -54,7 +84,7 @@ function onFileChange(event: Event) {
                     </Button>
                 </div>
                 <div class="space-y-2">
-                    <Label>CSV file</Label>
+                    <Label>Upload CSV file</Label>
                     <Input
                         type="file"
                         accept=".csv"
@@ -64,10 +94,12 @@ function onFileChange(event: Event) {
                 </div>
             </div>
             <DialogFooter>
-                <Button type="button" variant="secondary" @click="$emit('update:open', false)">
-                    Close
-                </Button>
-                <Button type="submit" variant="default" @click="$emit('submit')">
+                <DialogClose>
+                    <Button type="button" variant="secondary">
+                        Close
+                    </Button>
+                </DialogClose>
+                <Button variant="default" @click="submit" :disabled="!file">
                     Submit
                 </Button>
             </DialogFooter>
