@@ -23,6 +23,7 @@ import { Link, useForm, usePage } from '@inertiajs/vue3';
 import { Loader, PlusCircle, PlusSquare } from 'lucide-vue-next';
 import { AcceptableValue } from 'reka-ui';
 import { onMounted, ref } from 'vue';
+import ImportLeads from './leads/ImportLeads.vue';
 
 type TLeadWithUsers = TLead & {
     users?: TUser[]|null
@@ -273,6 +274,7 @@ const prevAjax = async () => {
                         </div>
                     </template>
                 </BulkAssignDialog>
+                <ImportLeads/>
             </div>
             <div class="w-full rounded-lg border">
                 <Table class="w-full">

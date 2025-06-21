@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\LeadController;
+use App\Http\Controllers\LeadStatusController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -18,6 +20,9 @@ Route::middleware(['auth'])->group(function() {
     Route::post('leads/update-lead-status', [Admin\LeadController::class, 'updateLeadStatus']);
 });
 
+Route::get('lead-statuses/csv', [LeadStatusController::class, 'exportCsv']);
+Route::get('leads/template', [LeadController::class, 'leadsTemplate']);
+
 Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])->group(function () {
     Route::prefix('json')->name('json.')->group(function () {
         Route::get('users/get-users-by-role/{role}', [Admin\UserController::class, 'getUsersByRole']);
@@ -26,6 +31,7 @@ Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])
     Route::resource('users', Admin\UserController::class);
     Route::post('leads/mass-assignee', [Admin\LeadController::class, 'storeMassAssignee']);
     Route::post('leads/bulk-assign-leads', [Admin\LeadController::class, 'bulkAssignLeads']);
+    Route::post('leads/import', [Admin\LeadController::class, 'import']);
     Route::resource('leads', Admin\LeadController::class);
 });
 

@@ -183,4 +183,10 @@ class LeadController extends Controller
             return response()->json(['message' => $th->getMessage()]);
         }
     }
+
+    public function import()
+    {
+        // This method is not implemented yet.
+        return redirect()->back()->with('error', 'This feature is not implemented yet.');
+    }
 }
