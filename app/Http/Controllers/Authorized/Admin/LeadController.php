@@ -184,8 +184,10 @@ class LeadController extends Controller
         }
     }
 
-    public function import()
+    public function import(Request $request)
     {
+        $importedData = $this->leadService->importLeadsByExcel($request->all()['file']);
+        dd($importedData);
         // This method is not implemented yet.
         return redirect()->back()->with('success', 'Data uploaded.');
     }

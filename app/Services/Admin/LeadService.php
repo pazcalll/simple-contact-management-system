@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Models\AssignedLead;
 use App\Models\Lead;
 use App\Models\LeadStatus;
+use Illuminate\Http\UploadedFile;
 
 class LeadService
 {
@@ -97,5 +98,61 @@ class LeadService
         }
 
         return $this;
+    }
+
+    public function importLeadsByExcel(mixed $file)
+    {
+        // Only supports CSV files natively
+        $fileOriginalName = is_string($file)
+            ? $file
+            : (
+                method_exists($file, 'getClientOriginalName')
+                ? $file->getClientOriginalName()
+                : null
+            );
+        if (!$fileOriginalName) {
+            return [];
+        }
+
+        $extension = strtolower(pathinfo($fileOriginalName, PATHINFO_EXTENSION));
+        if ($extension === 'csv') {
+            $rows = [];
+            $fileRealPath = $file->getRealPath() ?? $fileOriginalName;
+            if (($handle = fopen($fileRealPath, 'r')) !== false) {
+                $delimiter = ',';
+                $firstLine = fgets($handle);
+                if (strpos($firstLine, ';') !== false && substr_count($firstLine, ';') > substr_count($firstLine, ',')) {
+                    $delimiter = ';';
+                }
+                rewind($handle);
+
+                $header = null;
+                while (($data = fgetcsv($handle, 0, $delimiter)) !== false) {
+                    // Clean all values
+                    $data = array_map(function($v) {
+                        $v = preg_replace('/^\x{FEFF}/u', '', $v); // Remove BOM
+                        return trim($v);
+                    }, $data);
+                    if ($header === null) {
+                        $header = $data;
+                        continue;
+                    }
+                    // Map header to row
+                    $row = array_combine($header, $data);
+                    // Clean keys as well (in case BOM is in header)
+                    $cleanRow = [];
+                    foreach ($row as $k => $v) {
+                        $cleanKey = preg_replace('/^\x{FEFF}/u', '', trim($k));
+                        $cleanRow[$cleanKey] = $v;
+                    }
+                    $rows[] = $cleanRow;
+                }
+                fclose($handle);
+            }
+            return $rows;
+        }
+
+        // For non-CSV files, return empty array (native PHP cannot parse Excel files)
+        return [];
     }
 }

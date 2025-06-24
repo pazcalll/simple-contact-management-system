@@ -52,9 +52,9 @@ function submit() {
 </script>
 
 <template>
-    <Dialog :open="isOpen">
+    <Dialog>
         <DialogTrigger>
-            <Button class="w-full" variant="secondary" @click="isOpen = true">
+            <Button class="w-full" variant="secondary">
                 <CopyCheckIcon></CopyCheckIcon>
                 Import Leads
             </Button>
@@ -73,13 +73,8 @@ function submit() {
                 </p>
                 <div class="space-x-2 space-y-2 w-full">
                     <Button class="bg-blue-500 hover:bg-blue-600 text-white">
-                        <a href="/leads/template" class="w-full" target="_blank">
+                        <a href="/storage/leads-upload-template.csv" class="w-full" target="_blank">
                             Download Leads Template
-                        </a>
-                    </Button>
-                    <Button class="bg-blue-500 hover:bg-blue-600 text-white">
-                        <a href="/lead-statuses/csv" class="w-full" target="_blank">
-                            Download Statuses Template
                         </a>
                     </Button>
                 </div>
