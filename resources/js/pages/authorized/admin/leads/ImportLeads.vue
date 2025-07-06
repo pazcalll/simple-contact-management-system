@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { type TSubmissionAlert } from '@/components/custom/alert/SubmissionAlert.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import DialogClose from '@/components/ui/dialog/DialogClose.vue';
@@ -12,7 +13,24 @@ import Input from '@/components/ui/input/Input.vue';
 import Label from '@/components/ui/label/Label.vue';
 import { useForm } from '@inertiajs/vue3';
 import { CopyCheckIcon } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+
+const props = defineProps<{
+    submissionAlert: TSubmissionAlert;
+}>();
+
+const submissionAlert = ref<TSubmissionAlert>({
+    isSuccess: props.submissionAlert.isSuccess,
+    message: props.submissionAlert.message,
+});
+
+const emit = defineEmits(['update:alert']);
+
+watch([submissionAlert], ([newSubmissionAlert]) => {
+    console.log('Submission Alert Updated:', newSubmissionAlert);
+    console.log('oldSubmissionAlert:', props.submissionAlert);
+    emit('update:alert', newSubmissionAlert);
+});
 
 const file = ref<File | null>(null);
 const isOpen = ref(false);
@@ -39,6 +57,10 @@ function submit() {
                 file.value = null;
                 // Optionally, you can close the dialog or reset the form
                 isOpen.value = false;
+                submissionAlert.value = {
+                    isSuccess: true,
+                    message: 'Leads imported successfully!',
+                };
             },
             onError: (errors) => {
                 console.error('Import failed:', errors);
@@ -52,7 +74,7 @@ function submit() {
 </script>
 
 <template>
-    <Dialog>
+    <Dialog :open="isOpen" @update:open="isOpen = $event">
         <DialogTrigger>
             <Button class="w-full" variant="secondary">
                 <CopyCheckIcon></CopyCheckIcon>

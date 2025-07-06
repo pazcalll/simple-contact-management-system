@@ -186,9 +186,17 @@ class LeadController extends Controller
 
     public function import(Request $request)
     {
-        $importedData = $this->leadService->importLeadsByExcel($request->all()['file']);
-        dd($importedData);
-        // This method is not implemented yet.
-        return redirect()->back()->with('success', 'Data uploaded.');
+        try {
+            DB::beginTransaction();
+            $importedData = $this->leadService->importLeadsByExcel($request->all()['file']);
+            $this->leadService->bulkInsertImportedLeads($importedData);
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Data uploaded.');
+        } catch (\Throwable $th) {
+            // Handle the exception, e.g., log it or return an error response
+            DB::rollBack();
+            return redirect()->back()->with('error', $th->getMessage());
+        }
     }
 }

@@ -18,9 +18,9 @@ class Lead extends Model
         'name',
         'email',
         'mobile_number',
-        'gtm_source',
-        'gtm_medium',
-        'gtm_campaign',
+        'utm_source',
+        'utm_medium',
+        'utm_campaign',
         'is_private',
         'lead_status_id',
     ];

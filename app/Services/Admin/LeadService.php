@@ -155,4 +155,38 @@ class LeadService
         // For non-CSV files, return empty array (native PHP cannot parse Excel files)
         return [];
     }
+
+    /**
+    * @param array<int, array{
+    *     lead_email: string,
+    *     lead_name: string,
+    *     lead_mobile_number: string,
+    *     utm_source?: string,
+    *     utm_medium?: string,
+    *     utm_campaign?: string
+    * }> $leads Array of leads with string keys.
+     */
+    public function bulkInsertImportedLeads(array $leads)
+    {
+        $insertableLeads = [];
+        $now = now();
+        $leadStatusId = LeadStatus::where('name', 'New')->first()->id;
+
+        foreach ($leads as $lead) {
+            $insertableLeads[] = [
+                'email' => $lead['lead_email'] ?? null,
+                'name' => $lead['lead_name'] ?? null,
+                'mobile_number' => $lead['lead_mobile_number'] ?? null,
+                'utm_source' => $lead['utm_source'] ?? null,
+                'utm_medium' => $lead['utm_medium'] ?? null,
+                'utm_campaign' => $lead['utm_campaign'] ?? null,
+                'is_private' => false,
+                'lead_status_id' => $leadStatusId ?? 1,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        // Lead::insert($insertableLeads);
+    }
 }

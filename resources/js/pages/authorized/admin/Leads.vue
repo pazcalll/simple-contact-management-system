@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import BulkAssignDialog from '@/components/custom/dialog/BulkAssignDialog.vue';
 import TablePaginationAjax, { handleNextAJAX, handlePrevAJAX, handleReloadAJAX } from '@/components/custom/table/TablePaginationAjax.vue';
-import Alert from '@/components/ui/alert/Alert.vue';
-import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
-import AlertTitle from '@/components/ui/alert/AlertTitle.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Input from '@/components/ui/input/Input.vue';
 import Label from '@/components/ui/label/Label.vue';
@@ -24,6 +21,7 @@ import { Loader, PlusCircle, PlusSquare } from 'lucide-vue-next';
 import { AcceptableValue } from 'reka-ui';
 import { onMounted, ref } from 'vue';
 import ImportLeads from './leads/ImportLeads.vue';
+import SubmissionAlert, { type TSubmissionAlert } from '@/components/custom/alert/SubmissionAlert.vue';
 
 type TLeadWithUsers = TLead & {
     users?: TUser[]|null
@@ -48,6 +46,11 @@ const selectedManagerId = ref<number|null>(null);
 const selectedSupervisorId = ref<number|null>(null);
 const selectedTeamLeaderId = ref<number|null>(null);
 const selectedStaffId = ref<number|null>(null);
+
+const submissionAlertState = ref<TSubmissionAlert>({
+    isSuccess: null,
+    message: null,
+});
 
 const groupLeadStatuses = () => {
     const groups: { [group: string]: TLeadStatus[] } = {};
@@ -162,6 +165,11 @@ const handleSubmitBulkAssign = () => {
     });
 }
 
+const handleImportLeadsAlert = () => {
+    submissionAlertState.value.isSuccess = true;
+    submissionAlertState.value.message = 'Leads imported successfully!';
+};
+
 const nextAjax = async () => {
     const response = await handleNextAJAX({ pagination: pagination, endpoint: '/admins/leads' })
     if (response == undefined) return;
@@ -177,12 +185,16 @@ const prevAjax = async () => {
 <template>
     <AppLayout>
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <Alert v-if="page.props.flash.success" class="bg-green-500">
+            <!-- <Alert v-if="page.props.flash.success" class="bg-green-500">
                 <AlertTitle class="text-white">Success</AlertTitle>
                 <AlertDescription class="text-white">
                     {{ page.props.flash.success }}
                 </AlertDescription>
-            </Alert>
+            </Alert> -->
+            <SubmissionAlert
+                :isSuccess="submissionAlertState.isSuccess"
+                :message="submissionAlertState.message"
+            />
             <div class="grid grid-cols-5 gap-2">
                 <Link :href="route('admins.leads.create')">
                     <Button variant="default" class="w-full text-white"> <PlusCircle></PlusCircle>Add Leads </Button>
@@ -274,7 +286,7 @@ const prevAjax = async () => {
                         </div>
                     </template>
                 </BulkAssignDialog>
-                <ImportLeads/>
+                <ImportLeads :submission-alert="submissionAlertState" @update:alert="handleImportLeadsAlert" />
             </div>
             <div class="w-full rounded-lg border">
                 <Table class="w-full">

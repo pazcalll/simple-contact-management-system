@@ -1,13 +1,18 @@
+<script lang="ts">
+// Export types for use in other components
+export type TSubmissionAlert = {
+  message: string | null;
+  isSuccess: boolean | null;
+};
+</script>
+
 <script setup lang="ts">
 import Alert from '@/components/ui/alert/Alert.vue';
 import AlertDescription from '@/components/ui/alert/AlertDescription.vue';
 import AlertTitle from '@/components/ui/alert/AlertTitle.vue';
 import { ref, watch } from 'vue';
 
-const props = defineProps<{
-  message: string,
-  isSuccess: boolean,
-}>();
+const props = defineProps<TSubmissionAlert>();
 
 // Control the visibility of the alert
 const isVisible = ref(props.isSuccess);
@@ -26,8 +31,8 @@ watch(() => props.isSuccess, (newValue) => {
 <template>
   <Alert v-if="isVisible" class="bg-green-500 relative">
       <div class="absolute top-2 right-2">
-        <button 
-          @click="closeAlert" 
+        <button
+          @click="closeAlert"
           class="text-white hover:text-gray-200 focus:outline-none text-3xl mr-2"
           aria-label="Close alert"
         >
@@ -36,7 +41,7 @@ watch(() => props.isSuccess, (newValue) => {
       </div>
       <AlertTitle class="text-white">Success</AlertTitle>
       <AlertDescription class="text-white">
-          {{ message }}
+          {{ props.message }}
       </AlertDescription>
   </Alert>
 </template>
