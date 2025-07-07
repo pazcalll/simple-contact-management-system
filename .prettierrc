@@ -13,6 +13,30 @@
             "options": {
                 "tabWidth": 2
             }
+        },
+        {
+            "files": "**/*.vue",
+            "options": {
+                "tabWidth": 2
+            }
+        },
+        {
+            "files": "**/*.ts",
+            "options": {
+                "tabWidth": 2
+            }
+        },
+        {
+            "files": "**/*.tsx",
+            "options": {
+                "tabWidth": 2
+            }
+        },
+        {
+            "files": "**/*.js",
+            "options": {
+                "tabWidth": 2
+            }
         }
     ]
 }

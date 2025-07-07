@@ -48,7 +48,7 @@ const selectedTeamLeaderId = ref<number|null>(null);
 const selectedStaffId = ref<number|null>(null);
 
 const submissionAlertState = ref<TSubmissionAlert>({
-    isSuccess: null,
+    isShow: null,
     message: null,
 });
 
@@ -166,7 +166,7 @@ const handleSubmitBulkAssign = () => {
 }
 
 const handleImportLeadsAlert = () => {
-    submissionAlertState.value.isSuccess = true;
+    submissionAlertState.value.isShow = true;
     submissionAlertState.value.message = 'Leads imported successfully!';
 };
 
@@ -192,7 +192,7 @@ const prevAjax = async () => {
                 </AlertDescription>
             </Alert> -->
             <SubmissionAlert
-                :isSuccess="submissionAlertState.isSuccess"
+                :isShow="submissionAlertState.isShow"
                 :message="submissionAlertState.message"
             />
             <div class="grid grid-cols-5 gap-2">

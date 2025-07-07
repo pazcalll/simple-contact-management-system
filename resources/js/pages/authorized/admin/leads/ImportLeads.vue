@@ -20,7 +20,7 @@ const props = defineProps<{
 }>();
 
 const submissionAlert = ref<TSubmissionAlert>({
-    isSuccess: props.submissionAlert.isSuccess,
+    isShow: props.submissionAlert.isShow,
     message: props.submissionAlert.message,
 });
 
@@ -58,7 +58,7 @@ function submit() {
                 // Optionally, you can close the dialog or reset the form
                 isOpen.value = false;
                 submissionAlert.value = {
-                    isSuccess: true,
+                    isShow: true,
                     message: 'Leads imported successfully!',
                 };
             },
