@@ -187,6 +187,6 @@ class LeadService
             ];
         }
 
-        // Lead::insert($insertableLeads);
+        Lead::insert($insertableLeads);
     }
 }

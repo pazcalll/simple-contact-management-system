@@ -20,7 +20,7 @@ class LeadService
 
     public function getOneById($leadId)
     {
-        return Lead::find($leadId);
+        return Lead::with(['leadStatus'])->find($leadId);
     }
 
     public function getPagination($page = 1, $length = 15)

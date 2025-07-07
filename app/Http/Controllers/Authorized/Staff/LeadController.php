@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Authorized\Staff;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Authorized\MassUpdateLeadStatusIdRequest;
 use App\Http\Requests\UpdateLeadStatusRequest;
+use App\Services\LeadNoteService;
 use App\Services\Staff\LeadService;
 use App\Services\Staff\LeadStatusService;
 use Illuminate\Http\JsonResponse;
@@ -15,10 +16,12 @@ class LeadController extends Controller
 {
     private LeadService $leadService;
     private LeadStatusService $leadStatusService;
+    private LeadNoteService $leadNoteService;
     public function __construct()
     {
         $this->leadStatusService = new LeadStatusService();
         $this->leadService = new LeadService();
+        $this->leadNoteService = new LeadNoteService();
     }
 
     /**
@@ -87,14 +90,29 @@ class LeadController extends Controller
     public function updateStatus(UpdateLeadStatusRequest $request, string $id)
     {
         //
-        $this->leadService->updateLeadStatuses(
-            leadIds: [$id],
-            leadStatusId: $request->input('lead_status_id')
-        );
+        try {
+            $this->leadService->updateLeadStatuses(
+                leadIds: [$id],
+                leadStatusId: $request->input('lead_status_id')
+            );
 
-        return redirect()->back()->with([
-            'success' => 'Lead status updated successfully.'
-        ]);
+            $lead = $this->leadService->getOneById($id);
+
+            $this->leadNoteService->create(
+                lead: $lead,
+                user: auth()->user(),
+                note: 'Status updated to ' . $lead->leadStatus->name
+            );
+
+            return redirect()->back()->with([
+                'success' => 'Lead status updated successfully.'
+            ]);
+        } catch (\Throwable $th) {
+            return redirect()->back()->with([
+                'error' => $th->getMessage()
+            ]);
+        }
+
     }
 
     public function massUpdateStatus(MassUpdateLeadStatusIdRequest $request)
