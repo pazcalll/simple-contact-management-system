@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Authorized\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Authorized\MassUpdateLeadStatusIdRequest;
+use App\Http\Requests\Authorized\StoreLeadRequest;
 use App\Http\Requests\UpdateLeadStatusRequest;
 use App\Services\LeadNoteService;
 use App\Services\Staff\LeadService;
@@ -44,15 +45,30 @@ class LeadController extends Controller
     public function create()
     {
         //
-        return Inertia::render('authorized/staff/AddLead');
+        return Inertia::render('authorized/staff/AddLead', [
+            'lead' => session()->get('lead', null),
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreLeadRequest $request)
     {
         //
+        try {
+            $validatedData = $request->validated();
+            $lead = $this->leadService->create($validatedData);
+
+            return redirect()->back()->with([
+                'lead' => $lead,
+                'success' => 'Lead created successfully.',
+            ]);
+        } catch (\Throwable $th) {
+            return redirect()->back()->with([
+                'error' => $th->getMessage()
+            ]);
+        }
     }
 
     /**
