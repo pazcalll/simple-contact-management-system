@@ -57,6 +57,11 @@ class User extends Authenticatable
         return $this->belongsTo(User::class);
     }
 
+    public function downlines()
+    {
+        return $this->hasMany(User::class, 'upline_id');
+    }
+
     public function leads()
     {
         return $this->belongsToMany(Lead::class, 'assignees');

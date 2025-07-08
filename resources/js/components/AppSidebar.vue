@@ -8,82 +8,85 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { CircleUserRound, LayoutGrid, PersonStanding } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import { TUser } from '@/types/custom';
-import { ROLE_ADMIN, ROLE_STAFF } from '@/consts/role';
+import { ROLE_ADMIN, ROLE_MANAGER, ROLE_STAFF } from '@/consts/role';
 
-type TAuth = { auth: { user: TUser } }
+type TAuth = { auth: { user: TUser } };
 
 const page = usePage<TAuth>();
 const user = page.props.auth.user;
 const role = user.roles[0];
 
 const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
-    },
+  {
+    title: 'Dashboard',
+    href: '/dashboard',
+    icon: LayoutGrid,
+  },
 ];
 
 if (role.name == ROLE_STAFF) {
-    mainNavItems.push(
-        {
-            title: 'Leads',
-            href: '/staffs/leads',
-            icon: PersonStanding
-        },
-    )
-}
-else if (role.name == ROLE_ADMIN) {
-    mainNavItems.push(
-        {
-            title: 'Users',
-            href: '/admins/users',
-            icon: PersonStanding,
-        },
-        {
-            title: 'Leads',
-            href: '/admins/leads',
-            icon: CircleUserRound,
-        },
-    );
+  mainNavItems.push({
+    title: 'Leads',
+    href: '/staffs/leads',
+    icon: PersonStanding,
+  });
+} else if (role.name == ROLE_MANAGER) {
+  mainNavItems.push({
+    title: 'Leads',
+    href: '/managers/leads',
+    icon: PersonStanding,
+  });
+} else if (role.name == ROLE_ADMIN) {
+  mainNavItems.push(
+    {
+      title: 'Users',
+      href: '/admins/users',
+      icon: PersonStanding,
+    },
+    {
+      title: 'Leads',
+      href: '/admins/leads',
+      icon: CircleUserRound,
+    },
+  );
 }
 
 const footerNavItems: NavItem[] = [
-    // {
-    //     title: 'Github Repo',
-    //     href: 'https://github.com/laravel/vue-starter-kit',
-    //     icon: Folder,
-    // },
-    // {
-    //     title: 'Documentation',
-    //     href: 'https://laravel.com/docs/starter-kits',
-    //     icon: BookOpen,
-    // },
+  // {
+  //     title: 'Github Repo',
+  //     href: 'https://github.com/laravel/vue-starter-kit',
+  //     icon: Folder,
+  // },
+  // {
+  //     title: 'Documentation',
+  //     href: 'https://laravel.com/docs/starter-kits',
+  //     icon: BookOpen,
+  // },
 ];
 </script>
 
 <template>
-    <Sidebar collapsible="icon" variant="inset">
-        <SidebarHeader>
-            <SidebarMenu>
-                <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child>
-                        <Link :href="route('dashboard')">
-                            <AppLogo />
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
-        </SidebarHeader>
+  <Sidebar collapsible="icon" variant="inset">
+    <SidebarHeader>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" as-child>
+            <Link :href="route('dashboard')">
+              <AppLogo />
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarHeader>
 
-        <SidebarContent>
-            <NavMain :items="mainNavItems" />
-        </SidebarContent>
+    <SidebarContent>
+      <NavMain :items="mainNavItems" />
+    </SidebarContent>
 
-        <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
-            <NavUser />
-        </SidebarFooter>
-    </Sidebar>
-    <slot />
+    <SidebarFooter>
+      <NavFooter :items="footerNavItems" />
+      <NavUser />
+    </SidebarFooter>
+  </Sidebar>
+  <slot />
 </template>

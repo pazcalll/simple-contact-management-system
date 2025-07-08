@@ -6,6 +6,7 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Authorized\Admin;
+use App\Http\Controllers\Authorized\Manager;
 use App\Http\Controllers\Authorized\Staff;
 
 Route::get('/', function () {
@@ -33,6 +34,10 @@ Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])
     Route::post('leads/bulk-assign-leads', [Admin\LeadController::class, 'bulkAssignLeads']);
     Route::post('leads/import', [Admin\LeadController::class, 'import']);
     Route::resource('leads', Admin\LeadController::class);
+});
+
+Route::prefix('managers')->name('managers.')->middleware(['role:'.Role::ROLE_MANAGER])->group(function () {
+    Route::resource('leads', Manager\LeadController::class);
 });
 
 Route::prefix('staffs')->name('staffs.')->middleware(['role:'.Role::ROLE_STAFF])->group(function () {

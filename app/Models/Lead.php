@@ -29,6 +29,10 @@ class Lead extends Model
         'source',
     ];
 
+    protected $casts = [
+        'is_private' => 'boolean',
+    ];
+
     // accessors and mutators
     public function getSourceAttribute()
     {
