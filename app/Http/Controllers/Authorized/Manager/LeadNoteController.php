@@ -3,36 +3,31 @@
 namespace App\Http\Controllers\Authorized\Manager;
 
 use App\Http\Controllers\Controller;
-use App\Models\LeadStatus;
-use App\Services\Manager\LeadService;
-use App\Services\Manager\UserService;
+use App\Models\Lead;
+use App\Services\Manager\LeadNoteService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
-class LeadController extends Controller
+class LeadNoteController extends Controller
 {
     public function __construct(
-        public LeadService $leadService = new LeadService(),
-        public UserService $userService = new UserService(),
+        private LeadNoteService $leadNoteService = new LeadNoteService(),
     ) {}
 
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Lead $lead)
     {
-        //
-        $leads = $this->leadService->getPagination(request('page'), request('length'));
-        $leadStatuses = LeadStatus::latest()->get();
-        $supervisor = $this->userService->getDownlines(auth()->user());
+        if (request()->header('X-Request-Format') == 'json') {
+            return new JsonResponse(
+                $this->leadNoteService->get($lead),
+                200,
+                ['Content-Type' => 'application/json']
+            );
+        }
 
-        if (request()->header('X-Request-Format') == 'json') return response()->json([...$leads->toArray()]);
-
-        return Inertia::render('authorized/manager/Leads', [
-            'leads' => $leads,
-            'leadStatuses' => $leadStatuses,
-            'supervisor' => $supervisor,
-        ]);
+        return redirect()->back();
     }
 
     /**

@@ -3,6 +3,7 @@ import SubmissionAlert, { TSubmissionAlert } from '@/components/custom/alert/Sub
 import BulkAssignDialog from '@/components/custom/dialog/BulkAssignDialog.vue';
 import DialogLeadDetail from '@/components/custom/dialog/DialogLeadDetail.vue';
 import GroupedSelect from '@/components/custom/select/GroupedSelect.vue';
+import ItemSelect from '@/components/custom/select/ItemSelect.vue';
 import TablePagination, { handleNext, handlePrev } from '@/components/custom/table/TablePagination.vue';
 import Button from '@/components/ui/button/Button.vue';
 import DialogFooter from '@/components/ui/dialog/DialogFooter.vue';
@@ -14,7 +15,7 @@ import TableCell from '@/components/ui/table/TableCell.vue';
 import TableHead from '@/components/ui/table/TableHead.vue';
 import TableHeader from '@/components/ui/table/TableHeader.vue';
 import TableRow from '@/components/ui/table/TableRow.vue';
-import { getLeadNotesJson } from '@/data/staffs/lead-notes';
+import { getLeadNotesJson } from '@/data/managers/lead-notes';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { TFlash, TLead, TLeadNote, TLeadStatus, TPagination, TUser } from '@/types/custom';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
@@ -27,9 +28,10 @@ const page = usePage<{
   flash: TFlash;
   leads: TPagination<TLead[]>;
   leadStatuses: TLeadStatus[];
+  supervisor: TUser[];
 }>();
 
-console.log(page.props.leads);
+const supervisors = ref<TUser[]>(page.props.supervisor);
 
 const pagination = ref<TPagination<TLead[]>>(page.props.leads);
 const isDetailDialogOpen = ref<boolean>(false);
@@ -42,6 +44,7 @@ const submissionAlertState = ref<TSubmissionAlert>({
 const isDialogOpen = ref<boolean>(false);
 const checkedIds = ref<number[]>([]);
 const selectedLeadStatusId = ref<number | null>(null);
+const selectedSupervisorId = ref<number | null>(null);
 
 const selectedLead = ref<TLead | null>(null);
 
@@ -60,7 +63,7 @@ const formBulkAssign = useForm<{
 
 const handleAddNote = async () => {
   isAddingNote.value = true;
-  formAddNote.submit('post', `/staffs/leads/${selectedLead.value?.id}/notes`, {
+  formAddNote.submit('post', `/managers/leads/${selectedLead.value?.id}/lead-notes`, {
     onBefore: (data) => {
       console.log(data);
     },
@@ -122,7 +125,7 @@ const handleSelectedStatusChange = (leadId: number, event: AcceptableValue) => {
     lead_id: toUpdateLead?.id,
     lead_status_id: event as number,
   });
-  form.patch(`/staffs/leads/${toUpdateLead?.id}/status`, {
+  form.patch(`/managers/leads/${toUpdateLead?.id}/status`, {
     preserveScroll: true,
     preserveState: true,
     onError: (err) => {
@@ -139,7 +142,7 @@ const handleSelectedStatusChange = (leadId: number, event: AcceptableValue) => {
 const handleSubmitBulkAssign = () => {
   formBulkAssign.lead_ids = checkedIds.value;
   formBulkAssign.lead_status_id = selectedLeadStatusId.value;
-  formBulkAssign.patch('/staffs/leads/mass-update-status', {
+  formBulkAssign.patch('/managers/leads/mass-update-status', {
     preserveState: false,
     onError: (err) => {
       console.log(err);
@@ -157,6 +160,7 @@ const handleSubmitBulkAssign = () => {
 
 const handleOpenDialog = async (lead: TLead) => {
   selectedLead.value = lead;
+  console.log(lead);
 
   isDetailDialogOpen.value = true;
   if (selectedLead.value) selectedLead.value.lead_notes = await handleGetNotes();
@@ -188,7 +192,7 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
         </template>
       </DialogLeadDetail>
       <div class="grid grid-cols-5 gap-2">
-        <Link :href="route('staffs.leads.create')">
+        <Link :href="route('managers.leads.create')">
           <Button variant="default" class="w-full text-white"><PlusCircle></PlusCircle>Add Leads</Button>
         </Link>
         <BulkAssignDialog @submit="handleSubmitBulkAssign" v-model:open="isDialogOpen">
@@ -204,6 +208,11 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                 :convertable="leadStatuses"
                 @update:selected-id="handleLeadStatusId"
               />
+              <p class="text-red-500" v-if="formAddNote.errors.note">{{ formAddNote.errors.note }}</p>
+            </div>
+            <div class="w-full">
+              <Label class="mb-1">Supervisor</Label>
+              <ItemSelect placeholder="Select supervisor" :items="supervisors" @update:selected-id="selectedSupervisorId = $event as number" />
               <p class="text-red-500" v-if="formAddNote.errors.note">{{ formAddNote.errors.note }}</p>
             </div>
           </template>

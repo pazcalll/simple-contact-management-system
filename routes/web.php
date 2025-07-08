@@ -38,6 +38,7 @@ Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])
 
 Route::prefix('managers')->name('managers.')->middleware(['role:'.Role::ROLE_MANAGER])->group(function () {
     Route::resource('leads', Manager\LeadController::class);
+    Route::resource('leads/{lead}/lead-notes', Manager\LeadNoteController::class);
 });
 
 Route::prefix('staffs')->name('staffs.')->middleware(['role:'.Role::ROLE_STAFF])->group(function () {
