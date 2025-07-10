@@ -30,6 +30,7 @@ const page = usePage<{
   leadStatuses: TLeadStatus[];
   supervisor: TUser[];
 }>();
+console.log(page.props);
 
 const supervisors = ref<TUser[]>(page.props.supervisor);
 
@@ -56,9 +57,11 @@ const formAddNote = useForm({
 const formBulkAssign = useForm<{
   lead_status_id: number | null;
   lead_ids: number[];
+  supervisor_id?: number | null;
 }>({
   lead_status_id: null,
   lead_ids: [],
+  supervisor_id: null,
 });
 
 const handleAddNote = async () => {
@@ -142,7 +145,9 @@ const handleSelectedStatusChange = (leadId: number, event: AcceptableValue) => {
 const handleSubmitBulkAssign = () => {
   formBulkAssign.lead_ids = checkedIds.value;
   formBulkAssign.lead_status_id = selectedLeadStatusId.value;
-  formBulkAssign.patch('/managers/leads/mass-update-status', {
+  formBulkAssign.supervisor_id = selectedSupervisorId.value;
+
+  formBulkAssign.patch('/managers/leads/bulk-assign-leads', {
     preserveState: false,
     onError: (err) => {
       console.log(err);
@@ -151,6 +156,7 @@ const handleSubmitBulkAssign = () => {
       submissionAlertState.value.isShow = true;
       const flash = (data.props as unknown as TFlash).flash;
       submissionAlertState.value.message = flash.success || 'Bulk action completed successfully';
+      submissionAlertState.value.isShow = true;
       isDialogOpen.value = false;
       checkedIds.value = [];
       selectedLeadStatusId.value = null;
@@ -230,7 +236,7 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="lead in pagination.data" v-bind:key="lead?.id">
+            <TableRow v-for="lead in pagination.data" :key="lead?.id">
               <TableCell>
                 <Input type="checkbox" class="cursor-pointer" @click="handleCheckbox(lead.id)" :checked="isQueued(lead.id)" />
               </TableCell>

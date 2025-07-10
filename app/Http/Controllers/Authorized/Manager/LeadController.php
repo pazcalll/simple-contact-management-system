@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Authorized\Manager;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Authorized\Managers\BulkAssignRequest;
 use App\Models\LeadStatus;
 use App\Services\Manager\LeadService;
 use App\Services\Manager\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class LeadController extends Controller
@@ -81,5 +83,51 @@ class LeadController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function updateStatus(Request $request, string $id)
+    {
+        try {
+            $request->validate([
+                'lead_status_id' => 'required|exists:lead_statuses,id'
+            ]);
+
+            $this->leadService->updateLeadStatuses([$id], $request->input('lead_status_id'));
+
+            return redirect()->back()->with([
+                'success' => 'Lead status updated successfully.'
+            ]);
+        } catch (\Throwable $th) {
+            return redirect()->back()->with([
+                'error' => $th->getMessage()
+            ]);
+        }
+    }
+
+    public function bulkAssignLeads(BulkAssignRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $this->leadService->updateMassLeadAssignee(
+                $request->input('lead_ids'),
+                $request->user()->id,
+                $request->input('supervisor_id'),
+            );
+
+            $this->leadService->updateLeadStatuses(
+                $request->input('lead_ids'),
+                $request->input('lead_status_id'),
+            );
+
+            DB::commit();
+            return redirect()->back()->with([
+                'success' => 'Leads have been successfully assigned.'
+            ]);
+        } catch (\Throwable $th) {
+            return redirect()->back()->with([
+                'error' => $th->getMessage()
+            ]);
+        }
     }
 }
