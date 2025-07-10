@@ -39,6 +39,7 @@ Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])
 
 Route::prefix('managers')->name('managers.')->middleware(['role:'.Role::ROLE_MANAGER])->group(function () {
     Route::patch('leads/bulk-assign-leads', [Manager\LeadController::class, 'bulkAssignLeads']);
+    Route::patch('leads/{lead}/status', [Manager\LeadController::class, 'updateStatus']);
     Route::resource('leads/{lead}/lead-notes', Manager\LeadNoteController::class);
     Route::resource('leads', Manager\LeadController::class);
 });
