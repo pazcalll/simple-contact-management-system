@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Authorized\Admin;
 use App\Http\Controllers\Authorized\Manager;
+use App\Http\Controllers\Authorized\Supervisor;
 use App\Http\Controllers\Authorized\Staff;
 
 Route::get('/', function () {
@@ -36,10 +37,14 @@ Route::prefix('admins')->name('admins.')->middleware(['role:'.Role::ROLE_ADMIN])
     Route::resource('leads', Admin\LeadController::class);
 });
 
-Route::prefix('managers')->name('managers.')->middleware(['role:'.Role::ROLE_MANAGER, 'auth'])->group(function () {
+Route::prefix('managers')->name('managers.')->middleware(['role:'.Role::ROLE_MANAGER])->group(function () {
     Route::patch('leads/bulk-assign-leads', [Manager\LeadController::class, 'bulkAssignLeads']);
-    Route::resource('leads', Manager\LeadController::class);
     Route::resource('leads/{lead}/lead-notes', Manager\LeadNoteController::class);
+    Route::resource('leads', Manager\LeadController::class);
+});
+
+Route::prefix('supervisors')->name('supervisors.')->middleware(['role:'.Role::ROLE_SUPERVISOR])->group(function () {
+    Route::resource('leads', Supervisor\LeadController::class);
 });
 
 Route::prefix('staffs')->name('staffs.')->middleware(['role:'.Role::ROLE_STAFF])->group(function () {

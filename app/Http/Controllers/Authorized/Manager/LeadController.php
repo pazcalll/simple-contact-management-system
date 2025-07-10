@@ -30,11 +30,16 @@ class LeadController extends Controller
 
         if (request()->header('X-Request-Format') == 'json') return response()->json([...$leads->toArray()]);
 
-        return Inertia::render('authorized/manager/Leads', [
+        $page = Inertia::render('authorized/manager/Leads', [
             'leads' => $leads,
             'leadStatuses' => $leadStatuses,
             'supervisor' => $supervisor,
         ]);
+
+        if (session('success') !== null) $page = $page->with('success', session('success'));
+        if (session('error') !== null) $page = $page->with('error', session('error'));
+
+        return $page;
     }
 
     /**

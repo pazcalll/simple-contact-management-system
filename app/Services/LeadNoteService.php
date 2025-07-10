@@ -18,9 +18,11 @@ class LeadNoteService
 
     public function get(Lead $lead)
     {
-        return $lead
-            ->load('leadNotes.user')
-            ->leadNotes;
+        return LeadNote::query()
+            ->where('lead_id', $lead->id)
+            ->with(['user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     public function create(Lead $lead, User $user, string $note)

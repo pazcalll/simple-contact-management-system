@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Authorized\Manager;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Authorized\StoreLeadNoteRequest;
 use App\Models\Lead;
 use App\Services\Manager\LeadNoteService;
 use Illuminate\Http\JsonResponse;
@@ -41,9 +42,18 @@ class LeadNoteController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Lead $lead, StoreLeadNoteRequest $request)
     {
         //
+        $this->leadNoteService->create(
+            $lead,
+            $request->user(),
+            $request->note
+        );
+
+        return redirect()
+            ->route('managers.leads.index')
+            ->with('success', 'Lead note created successfully.');
     }
 
     /**

@@ -13,7 +13,7 @@ defineProps<{
 }>();
 const emit = defineEmits(['update:open', 'update:selected-lead']);
 
-const height = window.innerHeight >= 800 ? '24rem' : '12rem';
+const height = window.innerHeight >= 800 ? '18rem' : '8rem';
 
 function onDialogUpdateOpen(val: boolean) {
   emit('update:open', val);
@@ -49,8 +49,14 @@ function onDialogUpdateOpen(val: boolean) {
       <div class="w-full">
         <slot name="content"></slot>
       </div>
-      <div :class="`w-full max-h-[${height}] space-y-[1rem] overflow-y-auto`" v-if="selectedLead?.lead_notes !== null">
-        <div class="w-full rounded-md p-2 hover:bg-gray-200" v-for="(note, index) in selectedLead.lead_notes" v-bind:key="index">
+      <div
+        class="w-full space-y-[1rem] overflow-y-auto"
+        :style="{
+          maxHeight: height,
+        }"
+        v-if="selectedLead?.lead_notes !== null"
+      >
+        <div class="w-full rounded-md p-2 hover:bg-gray-200" v-for="(note, index) in selectedLead?.lead_notes || []" :key="index">
           <div class="flex w-full justify-between">
             <Label class="font-bold">{{ note.user.name }}</Label>
             <Label class="text-gray-400">{{ new Date(note.created_at).toISOString().slice(0, 10) }}</Label>

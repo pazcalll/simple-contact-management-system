@@ -74,6 +74,10 @@ const handleAddNote = async () => {
     },
     onSuccess: () => {
       isDetailDialogOpen.value = false;
+      submissionAlertState.value.isShow = true;
+      const flash = (page.props as unknown as TFlash).flash;
+      submissionAlertState.value.message = flash.success || 'Note added successfully';
+      formAddNote.reset();
     },
     onFinish: () => {
       isAddingNote.value = false;
