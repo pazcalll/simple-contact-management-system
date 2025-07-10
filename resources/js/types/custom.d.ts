@@ -56,6 +56,7 @@ type TLead = {
     lead_status_id: number;
     lead_status?: TLeadStatus;
     lead_notes?: TLeadNote[];
+    users?: TUser[];
 };
 
 type TLeadNote = {

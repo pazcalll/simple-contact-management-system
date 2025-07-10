@@ -30,10 +30,9 @@ class BulkAssignRequest extends FormRequest
      */
     public function rules(): array
     {
-        // dd($this->all());
         return [
             //
-            'lead_status_id' => ['required', 'exists:lead_statuses,id'],
+            'lead_status_id' => ['nullable', 'exists:lead_statuses,id'],
             'lead_ids' => ['required', 'array'],
             'lead_ids.*' => ['required', 'exists:leads,id'],
             'is_unassign' => ['nullable', 'in:on,off'],

@@ -24,7 +24,7 @@ import { AcceptableValue } from 'reka-ui';
 import { ref } from 'vue';
 
 const page = usePage<{
-  auth: TUser;
+  auth: { user: TUser };
   flash: TFlash;
   leads: TPagination<TLead[]>;
   leadStatuses: TLeadStatus[];
@@ -58,10 +58,12 @@ const formBulkAssign = useForm<{
   lead_status_id: number | null;
   lead_ids: number[];
   supervisor_id?: number | null;
+  is_unassign?: 'on' | 'off';
 }>({
   lead_status_id: null,
   lead_ids: [],
   supervisor_id: null,
+  is_unassign: 'off',
 });
 
 const handleAddNote = async () => {
@@ -221,6 +223,18 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
               <ItemSelect placeholder="Select supervisor" :items="supervisors" @update:selected-id="selectedSupervisorId = $event as number" />
               <p class="text-red-500" v-if="formAddNote.errors.note">{{ formAddNote.errors.note }}</p>
             </div>
+            <div class="flex w-full items-center justify-start">
+              <div class="flex items-center">
+                <Label class="ml-2 cursor-pointer">
+                  <Input
+                    type="checkbox"
+                    class="shadow-none"
+                    @click="(e: Event) => (formBulkAssign.is_unassign = (e.target as HTMLInputElement).checked ? 'on' : 'off')"
+                  />
+                  Unassign
+                </Label>
+              </div>
+            </div>
           </template>
         </BulkAssignDialog>
       </div>
@@ -233,6 +247,7 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
               <TableHead>Mobile</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Assignees</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -257,6 +272,11 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                   @update:selected-id="(event) => handleSelectedStatusChange(lead.id, event)"
                   v-bind:key="lead.id"
                 />
+              </TableCell>
+              <TableCell>
+                <ul v-for="assignee in lead.users" :key="assignee.id">
+                  <li v-if="assignee.id != page.props.auth.user.id">{{ assignee.name }}</li>
+                </ul>
               </TableCell>
             </TableRow>
             <TableRow v-if="pagination.data.length < 1">

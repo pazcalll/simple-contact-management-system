@@ -109,13 +109,26 @@ class LeadController extends Controller
         try {
             DB::beginTransaction();
 
-            $this->leadService->updateMassLeadAssignee(
-                $request->input('lead_ids'),
-                $request->user()->id,
-                $request->input('supervisor_id'),
-            );
+            if (
+                $request->input('supervisor_id') !== null
+                || $request->input('is_unassign') == 'on'
+            ) {
+                $nonRemovableUserIds = $this->userService
+                    ->getAllUplines($request->user()->id)
+                    ->pluck('id')
+                    ->toArray();
+                $nonRemovableUserIds[] = $request->user()->id;
 
-            $this->leadService->updateLeadStatuses(
+                $this->leadService->updateMassLeadAssignee(
+                    leadIds: $request->input('lead_ids'),
+                    managerId: $request->user()->id,
+                    supervisorId: $request->input('supervisor_id'),
+                    isUnassign: $request->input('is_unassign') === 'on',
+                    nonRemovableUserIds: $nonRemovableUserIds,
+                );
+            }
+
+            if ($request->input('lead_status_id') !== null) $this->leadService->updateLeadStatuses(
                 $request->input('lead_ids'),
                 $request->input('lead_status_id'),
             );
@@ -125,6 +138,7 @@ class LeadController extends Controller
                 'success' => 'Leads have been successfully assigned.'
             ]);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return redirect()->back()->with([
                 'error' => $th->getMessage()
             ]);

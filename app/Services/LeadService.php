@@ -55,9 +55,20 @@ class LeadService
         }
     }
 
-    public function deleteMassLeadAssignee(array $leadIds)
+    public function deleteMassLeadAssignee(array $leadIds, array $nonRemovableUserIds = []): static
     {
-        AssignedLead::whereIn('lead_id', $leadIds)->delete();
+        // if there are unassignable ids, we will not delete them
+        if (!empty($nonRemovableUserIds)) {
+            AssignedLead::whereIn('lead_id', $leadIds)
+                ->whereNotIn('user_id', $nonRemovableUserIds)
+                ->delete();
+            return $this;
+        }
+
+        // delete all assigned leads for the given lead ids
+        else AssignedLead::whereIn('lead_id', $leadIds)->delete();
+
+        return $this;
     }
 
     public function createMassLeadAssignee(array $leadIds, array $assigneeIds)
@@ -79,10 +90,11 @@ class LeadService
         int|string|null $teamLeaderId = null,
         int|string|null $staffId = null,
         bool $isUnassign = false,
+        array $nonRemovableUserIds = []
     ): static
     {
         if ($isUnassign) {
-            $this->deleteMassLeadAssignee($leadIds);
+            $this->deleteMassLeadAssignee($leadIds, $nonRemovableUserIds);
             return $this;
         }
 
