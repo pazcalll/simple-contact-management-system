@@ -119,11 +119,11 @@ class LeadService
         return $this;
     }
 
-    public function updateLeadStatuses(array $leadIds, int $statusId): static
+    public function updateLeadStatuses(array $leadIds, int $leadStatusId): static
     {
         foreach ($leadIds as $key => $leadId) {
             Lead::whereIn('id', $leadIds)->update([
-                'lead_status_id' => $statusId,
+                'lead_status_id' => $leadStatusId,
             ]);
         }
         return $this;
