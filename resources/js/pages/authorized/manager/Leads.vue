@@ -274,7 +274,7 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/admins/leads
                 />
               </TableCell>
               <TableCell>
-                <ul v-for="assignee in lead.users" :key="assignee.id">
+                <ul v-for="assignee in lead.users" :key="assignee.id" class="list-inside list-disc">
                   <li v-if="assignee.id != page.props.auth.user.id">{{ assignee.name }}</li>
                 </ul>
               </TableCell>
