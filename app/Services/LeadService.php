@@ -20,7 +20,7 @@ class LeadService
         //
     }
 
-    public function getPagination($page = 1, $length = 15)
+    public function getPagination($page = 1, $length = 15, bool $isQueryOnly = false)
     {
         $lead = Lead::with([
                 'leadStatus',
@@ -33,9 +33,11 @@ class LeadService
                 fn ($query) => $query->where('user_id', Auth::id())
             )
             ->orderBy('created_at', 'desc')
-            ->orderBy('id', 'desc')
-            ->paginate(perPage: $length, page: $page);
-        return $lead;
+            ->orderBy('id', 'desc');
+
+        if ($isQueryOnly) return $lead;
+
+        return $lead->paginate(perPage: $length, page: $page);
     }
 
     public function getOneById($leadId)

@@ -8,6 +8,7 @@ use App\Services\Staff\LeadStatusService;
 use App\Services\Supervisor\LeadService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -25,12 +26,20 @@ class LeadController extends Controller
     public function index()
     {
         //
-        $leads = $this->leadService->getPagination();
+        $leads = $this->leadService
+            ->getPagination(isQueryOnly: true)
+            ->with(['users.roles'])
+            ->paginate(
+                perPage: request()->query->get('length'),
+                page: request()->query->get('page')
+            );
         $leadStatuses = $this->leadStatusService->getAll();
+        $teamLeaders = $this->userService->getDownlines(Auth::user());
 
         return Inertia::render('authorized/supervisor/Leads', [
             'leads' => $leads,
             'leadStatuses' => $leadStatuses,
+            'teamLeaders' => $teamLeaders,
         ]);
     }
 
@@ -99,10 +108,11 @@ class LeadController extends Controller
 
                 $this->leadService->updateMassLeadAssignee(
                     leadIds: $request->input('lead_ids'),
-                    managerId: $request->user()->upline()?->id,
+                    managerId: $request->user()->upline()->first()->id,
                     supervisorId: $request->user()->id,
                     teamLeaderId: $request->input('team_leader_id'),
                     isUnassign: $request->input('is_unassign') === 'on',
+                    nonRemovableUserIds: $nonRemovableUserIds,
                 );
             }
 

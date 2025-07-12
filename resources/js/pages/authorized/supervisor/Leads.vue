@@ -3,6 +3,7 @@ import SubmissionAlert, { TSubmissionAlert } from '@/components/custom/alert/Sub
 import BulkAssignDialog from '@/components/custom/dialog/BulkAssignDialog.vue';
 import DialogLeadDetail from '@/components/custom/dialog/DialogLeadDetail.vue';
 import GroupedSelect from '@/components/custom/select/GroupedSelect.vue';
+import ItemSelect from '@/components/custom/select/ItemSelect.vue';
 import TablePagination, { handleNext, handlePrev } from '@/components/custom/table/TablePagination.vue';
 import Button from '@/components/ui/button/Button.vue';
 import DialogFooter from '@/components/ui/dialog/DialogFooter.vue';
@@ -14,16 +15,25 @@ import TableCell from '@/components/ui/table/TableCell.vue';
 import TableHead from '@/components/ui/table/TableHead.vue';
 import TableHeader from '@/components/ui/table/TableHeader.vue';
 import TableRow from '@/components/ui/table/TableRow.vue';
+import { ROLE_TEAM_LEADER } from '@/consts/role';
 import { getLeadNotesJson } from '@/data/leads';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { TFlash, TLead, TLeadNote, TLeadStatus, TPagination } from '@/types/custom';
+import { TFlash, TLead, TLeadNote, TLeadStatus, TPagination, TUser } from '@/types/custom';
 import { useForm, usePage } from '@inertiajs/vue3';
 import { Loader, PlusIcon } from 'lucide-vue-next';
 import { AcceptableValue } from 'reka-ui';
 import { ref } from 'vue';
 
-const page = usePage<TFlash>();
+const page = usePage<
+  TFlash & {
+    auth: { user: TUser };
+    leads: TPagination<TLead[]>;
+    leadStatuses: TLeadStatus[];
+    teamLeaders: TUser[];
+  }
+>();
 const pagination = ref<TPagination<TLead[]>>(page.props.leads as TPagination<TLead[]>);
+console.log(page.props.flash);
 const isDetailDialogOpen = ref<boolean>(false);
 const isAddingNote = ref<boolean>(false);
 const submissionAlertState = ref<TSubmissionAlert>({
@@ -37,7 +47,9 @@ const selectedLeadStatusId = ref<number | null>(null);
 
 const selectedLead = ref<TLead | null>(null);
 
+const teamLeaders = page.props.teamLeaders as TUser[];
 const leadStatuses = page.props.leadStatuses as TLeadStatus[];
+const selectedTeamLeaderId = ref<number | null>(null);
 const formAddNote = useForm({
   note: null,
 });
@@ -45,22 +57,36 @@ const formAddNote = useForm({
 const formBulkAssign = useForm<{
   lead_status_id: number | null;
   lead_ids: number[];
+  team_leader_id?: number | null;
+  is_unassign?: 'on' | 'off';
 }>({
   lead_status_id: null,
   lead_ids: [],
+  team_leader_id: null,
+  is_unassign: 'off',
 });
 
 const handleAddNote = async () => {
   isAddingNote.value = true;
   formAddNote.submit('post', `/leads/${selectedLead.value?.id}/notes`, {
+    preserveScroll: true,
+    preserveState: true,
     onBefore: (data) => {
       console.log(data);
     },
     onSuccess: () => {
       isDetailDialogOpen.value = false;
+      submissionAlertState.value.isShow = true;
+      submissionAlertState.value.message = 'Note added successfully';
     },
     onFinish: () => {
+      console.log('finished');
       isAddingNote.value = false;
+    },
+    onError: (err) => {
+      console.log(err);
+      submissionAlertState.value.isShow = true;
+      submissionAlertState.value.message = 'Failed to add note';
     },
   });
 };
@@ -131,6 +157,8 @@ const handleSelectedStatusChange = (leadId: number, event: AcceptableValue) => {
 const handleSubmitBulkAssign = () => {
   formBulkAssign.lead_ids = checkedIds.value;
   formBulkAssign.lead_status_id = selectedLeadStatusId.value;
+  formBulkAssign.team_leader_id = selectedTeamLeaderId.value;
+  formBulkAssign.is_unassign = formBulkAssign.is_unassign === 'on' ? 'on' : 'off';
   formBulkAssign.patch('/supervisors/leads/bulk-assign-leads', {
     preserveState: false,
     onError: (err) => {
@@ -198,6 +226,23 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/supervisors/
               />
               <p class="text-red-500" v-if="formAddNote.errors.note">{{ formAddNote.errors.note }}</p>
             </div>
+            <div class="w-full">
+              <Label class="mb-1">Team Leader</Label>
+              <ItemSelect placeholder="Select team leader" :items="teamLeaders" @update:selected-id="selectedTeamLeaderId = $event as number" />
+              <p class="text-red-500" v-if="formAddNote.errors.note">{{ formAddNote.errors.note }}</p>
+            </div>
+            <div class="flex w-full items-center justify-start">
+              <div class="flex items-center">
+                <Label class="ml-2 cursor-pointer">
+                  <Input
+                    type="checkbox"
+                    class="shadow-none"
+                    @click="(e: Event) => (formBulkAssign.is_unassign = (e.target as HTMLInputElement).checked ? 'on' : 'off')"
+                  />
+                  Unassign
+                </Label>
+              </div>
+            </div>
           </template>
         </BulkAssignDialog>
       </div>
@@ -210,6 +255,7 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/supervisors/
               <TableHead>Mobile</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Assignees</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -234,6 +280,11 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/supervisors/
                   @update:selected-id="(event) => handleSelectedStatusChange(lead.id, event)"
                   v-bind:key="lead.id"
                 />
+              </TableCell>
+              <TableCell>
+                <ul v-for="assignee in lead.users" :key="assignee.id" class="list-inside list-disc">
+                  <li v-if="assignee.roles[0].name == ROLE_TEAM_LEADER">{{ assignee.name }}</li>
+                </ul>
               </TableCell>
             </TableRow>
             <TableRow v-if="pagination.data.length < 1">
