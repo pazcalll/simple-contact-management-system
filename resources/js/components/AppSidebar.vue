@@ -8,7 +8,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { CircleUserRound, LayoutGrid, PersonStanding } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import { TUser } from '@/types/custom';
-import { ROLE_ADMIN, ROLE_MANAGER, ROLE_STAFF } from '@/consts/role';
+import { ROLE_ADMIN, ROLE_MANAGER, ROLE_STAFF, ROLE_SUPERVISOR } from '@/consts/role';
 
 type TAuth = { auth: { user: TUser } };
 
@@ -34,6 +34,12 @@ if (role.name == ROLE_STAFF) {
   mainNavItems.push({
     title: 'Leads',
     href: '/managers/leads',
+    icon: PersonStanding,
+  });
+} else if (role.name == ROLE_SUPERVISOR) {
+  mainNavItems.push({
+    title: 'Leads',
+    href: '/supervisors/leads',
     icon: PersonStanding,
   });
 } else if (role.name == ROLE_ADMIN) {

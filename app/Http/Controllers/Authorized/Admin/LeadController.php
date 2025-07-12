@@ -166,24 +166,6 @@ class LeadController extends Controller
         }
     }
 
-    public function updateLeadStatus(UpdateLeadStatusRequest $request)
-    {
-        try {
-            DB::beginTransaction();
-            $this->leadService->updateLeadStatuses(
-                [$request->post('lead_id')],
-                $request->post('lead_status_id'),
-            );
-
-            DB::commit();
-
-            return response()->json(['message' => 'Data has been updated']);
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return response()->json(['message' => $th->getMessage()]);
-        }
-    }
-
     public function import(Request $request)
     {
         try {
