@@ -9,6 +9,7 @@ use App\Http\Controllers\Authorized;
 use App\Http\Controllers\Authorized\Admin;
 use App\Http\Controllers\Authorized\Manager;
 use App\Http\Controllers\Authorized\Supervisor;
+use App\Http\Controllers\Authorized\TeamLeader;
 use App\Http\Controllers\Authorized\Staff;
 
 Route::get('/', function () {
@@ -48,6 +49,11 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('supervisors')->name('supervisors.')->middleware(['role:'.Role::ROLE_SUPERVISOR])->group(function () {
         Route::patch('leads/bulk-assign-leads', [Supervisor\LeadController::class, 'bulkAssignLeads']);
         Route::resource('leads', Supervisor\LeadController::class);
+    });
+
+    Route::prefix('team-leaders')->name('team-leaders.')->middleware(['role:'.Role::ROLE_TEAM_LEADER])->group(function () {
+        Route::patch('leads/bulk-assign-leads', [TeamLeader\LeadController::class, 'bulkAssignLeads']);
+        Route::resource('leads', TeamLeader\LeadController::class);
     });
 
     Route::prefix('staffs')->name('staffs.')->middleware(['role:'.Role::ROLE_STAFF])->group(function () {

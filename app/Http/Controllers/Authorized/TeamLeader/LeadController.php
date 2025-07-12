@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Authorized\Supervisor;
+namespace App\Http\Controllers\Authorized\TeamLeader;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Authorized\BulkAssignRequest;
-use App\Services\Staff\LeadStatusService;
-use App\Services\Supervisor\LeadService;
-use App\Services\UserService;
+use App\Services\TeamLeader\LeadService;
+use App\Services\TeamLeader\LeadStatusService;
+use App\Services\TeamLeader\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class LeadController extends Controller
@@ -38,7 +36,7 @@ class LeadController extends Controller
 
         if (request()->header('X-Request-Format') == 'json') return response()->json([...$leads->toArray()]);
 
-        return Inertia::render('authorized/supervisor/Leads', [
+        return Inertia::render('authorized/teamLeader/Leads', [
             'leads' => $leads,
             'leadStatuses' => $leadStatuses,
             'teamLeaders' => $teamLeaders,
@@ -91,47 +89,5 @@ class LeadController extends Controller
     public function destroy(string $id)
     {
         //
-    }
-
-    public function bulkAssignLeads(BulkAssignRequest $request)
-    {
-        try {
-            DB::beginTransaction();
-
-            if (
-                $request->input('team_leader_id') !== null
-                || $request->input('is_unassign') == 'on'
-            ) {
-                $nonRemovableUserIds = $this->userService
-                    ->getAllUplines($request->user()->id)
-                    ->pluck('id')
-                    ->toArray();
-                $nonRemovableUserIds[] = $request->user()->id;
-
-                $this->leadService->updateMassLeadAssignee(
-                    leadIds: $request->input('lead_ids'),
-                    managerId: $request->user()->upline()->first()->id,
-                    supervisorId: $request->user()->id,
-                    teamLeaderId: $request->input('team_leader_id'),
-                    isUnassign: $request->input('is_unassign') === 'on',
-                    nonRemovableUserIds: $nonRemovableUserIds,
-                );
-            }
-
-            if ($request->input('lead_status_id') !== null) $this->leadService->updateLeadStatuses(
-                $request->input('lead_ids'),
-                $request->input('lead_status_id'),
-            );
-
-            DB::commit();
-            return redirect()->back()->with([
-                'success' => 'Leads have been successfully assigned.'
-            ]);
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return redirect()->back()->with([
-                'error' => $th->getMessage()
-            ]);
-        }
     }
 }

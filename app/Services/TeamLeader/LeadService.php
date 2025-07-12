@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Staff;
+namespace App\Services\TeamLeader;
 
-class LeadStatusService extends \App\Services\LeadStatusService
+class LeadService extends \App\Services\LeadService
 {
     /**
      * Create a new class instance.
