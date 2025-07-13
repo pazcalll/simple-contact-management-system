@@ -15,7 +15,7 @@ import TableCell from '@/components/ui/table/TableCell.vue';
 import TableHead from '@/components/ui/table/TableHead.vue';
 import TableHeader from '@/components/ui/table/TableHeader.vue';
 import TableRow from '@/components/ui/table/TableRow.vue';
-import { ROLE_TEAM_LEADER } from '@/consts/role';
+import { ROLE_STAFF, ROLE_TEAM_LEADER } from '@/consts/role';
 import { getLeadNotesJson } from '@/data/leads';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { TFlash, TLead, TLeadNote, TLeadStatus, TPagination, TUser } from '@/types/custom';
@@ -283,7 +283,9 @@ const prev = () => handlePrev({ pagination: pagination, endpoint: '/supervisors/
               </TableCell>
               <TableCell>
                 <ul v-for="assignee in lead.users" :key="assignee.id" class="list-inside list-disc">
-                  <li v-if="assignee.roles[0].name == ROLE_TEAM_LEADER">{{ assignee.name }}</li>
+                  <li v-if="assignee.roles[0].name == ROLE_TEAM_LEADER || assignee.roles[0].name == ROLE_STAFF">
+                    {{ assignee.name }}
+                  </li>
                 </ul>
               </TableCell>
             </TableRow>

@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Authorized\TeamLeader;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Authorized\BulkAssignRequest;
 use App\Services\TeamLeader\LeadService;
 use App\Services\TeamLeader\LeadStatusService;
 use App\Services\TeamLeader\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class LeadController extends Controller
@@ -32,14 +34,14 @@ class LeadController extends Controller
                 page: request()->query->get('page')
             );
         $leadStatuses = $this->leadStatusService->getAll();
-        $teamLeaders = $this->userService->getDownlines(Auth::user());
+        $staffs = $this->userService->getDownlines(Auth::user());
 
         if (request()->header('X-Request-Format') == 'json') return response()->json([...$leads->toArray()]);
 
         return Inertia::render('authorized/teamLeader/Leads', [
             'leads' => $leads,
             'leadStatuses' => $leadStatuses,
-            'teamLeaders' => $teamLeaders,
+            'staffs' => $staffs,
         ]);
     }
 
@@ -89,5 +91,49 @@ class LeadController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function bulkAssignLeads(BulkAssignRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            if (
+                $request->input('staff_id') !== null
+                || $request->input('is_unassign') == 'on'
+            ) {
+                $uplines = $this
+                    ->userService
+                    ->getAllUplines($request->user()->id);
+                $assigneeIds = $uplines
+                    ->pluck('id')
+                    ->toArray();
+                $assigneeIds[] = $request->user()->id;
+
+                if ($request->input('is_unassign') != 'on')
+                $assigneeIds[] = $request->input('staff_id');
+
+                $this->leadService->assignLeads(
+                    $request->input('lead_ids'),
+                    $assigneeIds
+                );
+            }
+
+            if ($request->input('lead_status_id') !== null)
+                $this->leadService->updateLeadStatuses(
+                    $request->input('lead_ids'),
+                    $request->input('lead_status_id'),
+                );
+
+            DB::commit();
+            return redirect()->back()->with([
+                'success' => 'Leads have been successfully assigned.'
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return redirect()->back()->with([
+                'error' => $th->getMessage()
+            ]);
+        }
     }
 }

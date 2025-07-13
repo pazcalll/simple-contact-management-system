@@ -85,6 +85,17 @@ class LeadService
         }
     }
 
+    public function assignLeads(array $leadIds, array $assigneeIds): static
+    {
+        $this->deleteMassLeadAssignee($leadIds);
+        $leads = Lead::whereIn('id', $leadIds)->get();
+
+        foreach ($leads as $key => $lead) {
+            $this->createLeadAssignee($lead, $assigneeIds);
+        }
+        return $this;
+    }
+
     public function updateMassLeadAssignee(
         array $leadIds,
         int|string|null $managerId = null,
