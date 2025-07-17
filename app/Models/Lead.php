@@ -51,8 +51,7 @@ class Lead extends Model
     }
 
     // scopes
-    #[Scope]
-    protected function isPrivate(Builder $query, bool $boolean = true)
+    public function scopeIsPrivate(Builder $query, bool $boolean = true)
     {
         $query->where('is_private', $boolean);
     }
@@ -60,5 +59,10 @@ class Lead extends Model
     public function scopeIsCustomer(Builder $query)
     {
         $query->whereHas('leadStatus', fn ($query) => $query->where('slug', 'closed_won'));
+    }
+
+    public function scopeIsNotCustomer(Builder $query)
+    {
+        $query->whereHas('leadStatus', fn ($query) => $query->where('slug', '!=', 'closed_won'));
     }
 }

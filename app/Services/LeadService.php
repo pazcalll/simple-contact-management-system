@@ -32,6 +32,7 @@ class LeadService
                 'users',
                 fn ($query) => $query->where('user_id', Auth::id())
             )
+            ->isNotCustomer()
             ->orderBy('created_at', 'desc')
             ->orderBy('id', 'desc');
 
