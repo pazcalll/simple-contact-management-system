@@ -12,7 +12,7 @@ use App\Models\LeadStatus;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\Admin\LeadService;
-use App\Services\CustomerService;
+use App\Services\Admin\CustomerService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +31,11 @@ class LeadController extends Controller
     public function index()
     {
         //
-        $leads = Lead::latest()->with(['leadStatus', 'users'])->isPrivate(false)->paginate();
+        $leads = Lead::latest()
+            ->isNotCustomer()
+            ->with(['leadStatus', 'users'])
+            ->isPrivate(false)
+            ->paginate();
         $leadStatuses = LeadStatus::latest()->get();
         $managers = User::role(Role::ROLE_MANAGER)->get();
 
