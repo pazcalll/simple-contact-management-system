@@ -21,7 +21,7 @@ class CustomerService
         // Implementation for pagination of customers
         $query = Lead::query()
             ->isCustomer()
-            ->with(['leadStatus', 'users'])
+            ->with(['leadStatus', 'users.roles'])
             ->orderBy('created_at', 'desc')
             ->orderBy('id', 'desc');
 

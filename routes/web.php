@@ -51,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('supervisors')->name('supervisors.')->middleware(['role:'.Role::ROLE_SUPERVISOR])->group(function () {
         Route::patch('leads/bulk-assign-leads', [Supervisor\LeadController::class, 'bulkAssignLeads']);
         Route::resource('leads', Supervisor\LeadController::class);
+        Route::get('customers', [Supervisor\LeadController::class, 'getCustomers']);
     });
 
     Route::prefix('team-leaders')->name('team-leaders.')->middleware(['role:'.Role::ROLE_TEAM_LEADER])->group(function () {

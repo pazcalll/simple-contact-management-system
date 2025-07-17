@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Authorized\Supervisor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Authorized\BulkAssignRequest;
+use App\Services\CustomerService;
 use App\Services\Staff\LeadStatusService;
 use App\Services\Supervisor\LeadService;
 use App\Services\UserService;
@@ -18,6 +19,7 @@ class LeadController extends Controller
         private LeadService $leadService = new LeadService(),
         private LeadStatusService $leadStatusService = new LeadStatusService(),
         private UserService $userService = new UserService(),
+        private CustomerService $customerService = new CustomerService(),
     ) {}
 
     /**
@@ -133,5 +135,20 @@ class LeadController extends Controller
                 'error' => $th->getMessage()
             ]);
         }
+    }
+
+    public function getCustomers()
+    {
+        $customers = $this->customerService
+            ->getPagination(
+                page: request('page'),
+                length: request('length'),
+            );
+
+        if (request()->header('X-Request-Format') == 'json') return response()->json([...$customers->toArray()]);
+
+        return Inertia::render('authorized/supervisor/Customers', [
+            'customers' => $customers,
+        ]);
     }
 }
