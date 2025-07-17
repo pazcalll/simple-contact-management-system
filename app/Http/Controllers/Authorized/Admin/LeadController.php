@@ -12,18 +12,17 @@ use App\Models\LeadStatus;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\Admin\LeadService;
+use App\Services\CustomerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class LeadController extends Controller
 {
-    private LeadService $leadService;
-
-    public function __construct()
-    {
-        $this->leadService = new LeadService();
-    }
+    public function __construct(
+        private LeadService $leadService = new LeadService(),
+        private CustomerService $customerService = new CustomerService(),
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -180,5 +179,19 @@ class LeadController extends Controller
             DB::rollBack();
             return redirect()->back()->with('error', $th->getMessage());
         }
+    }
+
+    public function getCustomers()
+    {
+        $customers = $this
+            ->customerService
+            ->getPagination(
+                request()->get('page', 1),
+                request()->get('length', 15)
+            );
+
+        return Inertia::render('authorized/admin/Customers', [
+            'customers' => $customers,
+        ]);
     }
 }

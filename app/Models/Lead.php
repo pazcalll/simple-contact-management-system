@@ -56,4 +56,9 @@ class Lead extends Model
     {
         $query->where('is_private', $boolean);
     }
+
+    public function scopeIsCustomer(Builder $query)
+    {
+        $query->whereHas('leadStatus', fn ($query) => $query->where('slug', 'closed_won'));
+    }
 }

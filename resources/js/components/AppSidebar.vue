@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { CircleUserRound, LayoutGrid, PersonStanding } from 'lucide-vue-next';
+import { CircleUserRound, LayoutGrid, PersonStanding, UserRound } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import { TUser } from '@/types/custom';
 import { ROLE_ADMIN, ROLE_MANAGER, ROLE_STAFF, ROLE_SUPERVISOR, ROLE_TEAM_LEADER } from '@/consts/role';
@@ -53,11 +53,16 @@ if (role.name == ROLE_STAFF) {
     {
       title: 'Users',
       href: '/admins/users',
-      icon: PersonStanding,
+      icon: UserRound,
     },
     {
       title: 'Leads',
       href: '/admins/leads',
+      icon: PersonStanding,
+    },
+    {
+      title: 'Customers',
+      href: '/admins/customers',
       icon: CircleUserRound,
     },
   );

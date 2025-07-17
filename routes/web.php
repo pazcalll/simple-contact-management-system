@@ -36,6 +36,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('leads/mass-assignee', [Admin\LeadController::class, 'storeMassAssignee']);
         Route::post('leads/bulk-assign-leads', [Admin\LeadController::class, 'bulkAssignLeads']);
         Route::post('leads/import', [Admin\LeadController::class, 'import']);
+        Route::get('customers', [Admin\LeadController::class, 'getCustomers'])->name('customers');
         Route::resource('leads', Admin\LeadController::class);
     });
 

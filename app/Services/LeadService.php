@@ -85,6 +85,14 @@ class LeadService
         }
     }
 
+    /**
+     * Summary of assignLeads
+     * This method actually is a more efficient way to assign leads
+     * It was meant to replace updateMassLeadAssignee() due to its simplicity
+     * @param array $leadIds
+     * @param array $assigneeIds
+     * @return LeadService
+     */
     public function assignLeads(array $leadIds, array $assigneeIds): static
     {
         $this->deleteMassLeadAssignee($leadIds);
@@ -96,6 +104,18 @@ class LeadService
         return $this;
     }
 
+    /**
+     * (DEPRECATED)
+     * Summary of updateMassLeadAssignee
+     * @param array $leadIds
+     * @param int|string|null $managerId
+     * @param int|string|null $supervisorId
+     * @param int|string|null $teamLeaderId
+     * @param int|string|null $staffId
+     * @param bool $isUnassign
+     * @param array $nonRemovableUserIds
+     * @return LeadService
+     */
     public function updateMassLeadAssignee(
         array $leadIds,
         int|string|null $managerId = null,
