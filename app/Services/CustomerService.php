@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Lead;
+use App\Models\Role;
+use Illuminate\Support\Facades\Auth;
 
 class CustomerService
 {
@@ -22,6 +24,12 @@ class CustomerService
             ->with(['leadStatus', 'users'])
             ->orderBy('created_at', 'desc')
             ->orderBy('id', 'desc');
+
+        if (@!Auth::user()->hasRole(Role::ROLE_ADMIN)) {
+            $query->whereHas('users', function ($query) {
+                $query->where('users.id', Auth::id());
+            });
+        }
 
         if ($isQueryOnly) return $query;
 

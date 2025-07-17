@@ -18,12 +18,12 @@ const page = usePage<
 const pagination = ref(page?.props?.customers);
 
 const nextAjax = async () => {
-  const response = await handleNextAJAX({ pagination: pagination, endpoint: '/admins/customers' });
+  const response = await handleNextAJAX({ pagination: pagination, endpoint: '/managers/customers' });
   if (response == undefined) return;
   pagination.value = response as TPagination<TLead[]>;
 };
 const prevAjax = async () => {
-  const response = await handlePrevAJAX({ pagination: pagination, endpoint: '/admins/customers' });
+  const response = await handlePrevAJAX({ pagination: pagination, endpoint: '/managers/customers' });
   if (response == undefined) return;
   pagination.value = response as TPagination<TLead[]>;
 };

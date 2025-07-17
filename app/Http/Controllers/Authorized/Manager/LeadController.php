@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Authorized\Manager;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Authorized\Managers\BulkAssignRequest;
 use App\Models\LeadStatus;
+use App\Services\CustomerService;
 use App\Services\Manager\LeadService;
 use App\Services\Manager\UserService;
 use Illuminate\Http\Request;
@@ -16,6 +17,7 @@ class LeadController extends Controller
     public function __construct(
         public LeadService $leadService = new LeadService(),
         public UserService $userService = new UserService(),
+        public CustomerService $customerService = new CustomerService(),
     ) {}
 
     /**
@@ -148,5 +150,22 @@ class LeadController extends Controller
                 'error' => $th->getMessage()
             ]);
         }
+    }
+
+    public function getCustomers()
+    {
+        $customers = $this->customerService->getPagination(
+            page: request('page'),
+            length: request('length'),
+            isQueryOnly: false
+        );
+
+        if (request()->header('X-Request-Format') == 'json') {
+            return response()->json($customers->toArray());
+        }
+
+        return Inertia::render('authorized/manager/Customers', [
+            'customers' => $customers,
+        ]);
     }
 }

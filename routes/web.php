@@ -36,7 +36,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('leads/mass-assignee', [Admin\LeadController::class, 'storeMassAssignee']);
         Route::post('leads/bulk-assign-leads', [Admin\LeadController::class, 'bulkAssignLeads']);
         Route::post('leads/import', [Admin\LeadController::class, 'import']);
-        Route::get('customers', [Admin\LeadController::class, 'getCustomers'])->name('customers');
+        Route::get('customers', [Admin\LeadController::class, 'getCustomers']);
         Route::resource('leads', Admin\LeadController::class);
     });
 
@@ -45,6 +45,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('leads/{lead}/status', [Manager\LeadController::class, 'updateStatus']);
         Route::resource('leads/{lead}/lead-notes', Manager\LeadNoteController::class);
         Route::resource('leads', Manager\LeadController::class);
+        Route::get('customers', [Manager\LeadController::class, 'getCustomers']);
     });
 
     Route::prefix('supervisors')->name('supervisors.')->middleware(['role:'.Role::ROLE_SUPERVISOR])->group(function () {

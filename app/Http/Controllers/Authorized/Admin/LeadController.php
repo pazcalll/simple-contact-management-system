@@ -13,6 +13,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\Admin\LeadService;
 use App\Services\CustomerService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -189,6 +190,10 @@ class LeadController extends Controller
                 request()->get('page', 1),
                 request()->get('length', 15)
             );
+
+        if (request()->header('X-Request-Format') == 'json') {
+            return new JsonResponse($customers->toArray());
+        }
 
         return Inertia::render('authorized/admin/Customers', [
             'customers' => $customers,

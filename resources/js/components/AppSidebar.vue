@@ -36,6 +36,11 @@ if (role.name == ROLE_STAFF) {
     href: '/managers/leads',
     icon: PersonStanding,
   });
+  mainNavItems.push({
+    title: 'Customers',
+    href: '/managers/customers',
+    icon: CircleUserRound,
+  });
 } else if (role.name == ROLE_SUPERVISOR) {
   mainNavItems.push({
     title: 'Leads',
