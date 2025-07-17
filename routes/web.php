@@ -57,6 +57,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('team-leaders')->name('team-leaders.')->middleware(['role:'.Role::ROLE_TEAM_LEADER])->group(function () {
         Route::patch('leads/bulk-assign-leads', [TeamLeader\LeadController::class, 'bulkAssignLeads']);
         Route::resource('leads', TeamLeader\LeadController::class);
+        Route::get('customers', [TeamLeader\LeadController::class, 'getCustomers']);
     });
 
     Route::prefix('staffs')->name('staffs.')->middleware(['role:'.Role::ROLE_STAFF])->group(function () {
@@ -64,6 +65,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('leads/{lead}/status', [Staff\LeadController::class, 'updateStatus']);
         Route::patch('leads/mass-update-status', [Staff\LeadController::class, 'massUpdateStatus']);
         Route::resource('leads', Staff\LeadController::class);
+        Route::get('customers', [Staff\LeadController::class, 'getCustomers']);
     });
 
     Route::resource('leads/{lead}/notes', Authorized\LeadNoteController::class);

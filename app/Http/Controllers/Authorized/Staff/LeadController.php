@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Authorized\MassUpdateLeadStatusIdRequest;
 use App\Http\Requests\Authorized\StoreLeadRequest;
 use App\Http\Requests\UpdateLeadStatusRequest;
+use App\Services\CustomerService;
 use App\Services\LeadNoteService;
 use App\Services\Staff\LeadService;
 use App\Services\Staff\LeadStatusService;
@@ -15,15 +16,12 @@ use Inertia\Inertia;
 
 class LeadController extends Controller
 {
-    private LeadService $leadService;
-    private LeadStatusService $leadStatusService;
-    private LeadNoteService $leadNoteService;
-    public function __construct()
-    {
-        $this->leadStatusService = new LeadStatusService();
-        $this->leadService = new LeadService();
-        $this->leadNoteService = new LeadNoteService();
-    }
+    public function __construct(
+        private LeadService $leadService = new LeadService(),
+        private LeadStatusService $leadStatusService = new LeadStatusService(),
+        private LeadNoteService $leadNoteService = new LeadNoteService(),
+        private CustomerService $customerService = new CustomerService(),
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -141,6 +139,23 @@ class LeadController extends Controller
 
         return redirect()->back()->with([
             'success' => 'Lead statuses updated successfully.'
+        ]);
+    }
+
+    public function getCustomers()
+    {
+        $customers = $this->customerService
+            ->getPagination(
+                page: request('page'),
+                length: request('length'),
+            );
+
+        if (request()->header('X-Request-Format') == 'json') {
+            return new JsonResponse($customers);
+        }
+
+        return Inertia::render('authorized/staff/Customers', [
+            'customers' => $customers,
         ]);
     }
 }

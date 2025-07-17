@@ -30,6 +30,11 @@ if (role.name == ROLE_STAFF) {
     href: '/staffs/leads',
     icon: PersonStanding,
   });
+  mainNavItems.push({
+    title: 'Customers',
+    href: '/staffs/customers',
+    icon: CircleUserRound,
+  });
 } else if (role.name == ROLE_MANAGER) {
   mainNavItems.push({
     title: 'Leads',
@@ -57,6 +62,11 @@ if (role.name == ROLE_STAFF) {
     title: 'Leads',
     href: '/team-leaders/leads',
     icon: PersonStanding,
+  });
+  mainNavItems.push({
+    title: 'Customers',
+    href: '/team-leaders/customers',
+    icon: CircleUserRound,
   });
 } else if (role.name == ROLE_ADMIN) {
   mainNavItems.push(

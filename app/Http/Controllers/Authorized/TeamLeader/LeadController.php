@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Authorized\TeamLeader;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Authorized\BulkAssignRequest;
+use App\Services\CustomerService;
 use App\Services\TeamLeader\LeadService;
 use App\Services\TeamLeader\LeadStatusService;
 use App\Services\TeamLeader\UserService;
@@ -18,6 +19,7 @@ class LeadController extends Controller
         private LeadService $leadService = new LeadService(),
         private LeadStatusService $leadStatusService = new LeadStatusService(),
         private UserService $userService = new UserService(),
+        private CustomerService $customerService = new CustomerService(),
     ) {}
 
     /**
@@ -135,5 +137,22 @@ class LeadController extends Controller
                 'error' => $th->getMessage()
             ]);
         }
+    }
+
+    public function getCustomers()
+    {
+        $customers = $this->customerService
+            ->getPagination(
+                page: request('page'),
+                length: request('length'),
+                isQueryOnly: false
+            );
+        if (request()->header('X-Request-Format') == 'json') {
+            return response()->json($customers->toArray());
+        }
+
+        return Inertia::render('authorized/teamLeader/Customers', [
+            'customers' => $customers
+        ]);
     }
 }
