@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admins\StoreUserRequest;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -18,6 +19,11 @@ class UserController extends Controller
     {
         //
         $users = User::latest()->with('roles')->paginate();
+
+        if (request()->header('X-Request-Format') == 'json') {
+            return new JsonResponse($users);
+        }
+
         return Inertia::render('authorized/admin/Users', [
             'users' => $users,
         ]);
