@@ -10,9 +10,9 @@ import { AcceptableValue } from 'reka-ui';
 import { computed, ref, watch } from 'vue';
 
 const props = defineProps<{
-  selectedId: number|string|null;
-  placeholder: string|null;
-  convertable: { name: string, id: number, group: string, color?: string }[];
+  selectedId: number | string | null;
+  placeholder: string | null;
+  convertable: { name: string; id: number; group: string; color?: string }[];
 }>();
 
 const emit = defineEmits(['update:selected-id']);
@@ -21,14 +21,17 @@ const emit = defineEmits(['update:selected-id']);
 const selectedValue = ref(props.selectedId);
 
 // Watch for changes in props.selectedId and update the local selectedValue
-watch(() => props.selectedId, (newValue) => {
-  selectedValue.value = newValue;
-});
+watch(
+  () => props.selectedId,
+  (newValue) => {
+    selectedValue.value = newValue;
+  },
+);
 
 // Find the currently selected item based on selectedValue
 const selectedItem = computed(() => {
   if (selectedValue.value === null) return null;
-  return props.convertable.find(item => item.id === selectedValue.value) || null;
+  return props.convertable.find((item) => item.id === selectedValue.value) || null;
 });
 
 // Compute border style based on the selected item
@@ -36,7 +39,7 @@ const borderStyle = computed(() => {
   return selectedItem.value?.color ? { borderColor: selectedItem.value.color, borderWidth: '2px' } : {};
 });
 
-const groupableArray = <T extends { name: string, id: number, group: string, color?: string }> (convertable: T[]): { [group: string]: T[] } => {
+const groupableArray = <T extends { name: string; id: number; group: string; color?: string }>(convertable: T[]): { [group: string]: T[] } => {
   const groups: { [group: string]: T[] } = {};
   convertable.forEach((status) => {
     const group = status.group || 'Ungrouped';
@@ -58,18 +61,18 @@ const handleSelectionChange = (id: AcceptableValue) => {
 <template>
   <Select v-model="selectedValue" @update:model-value="handleSelectionChange">
     <SelectTrigger class="w-full" :style="borderStyle">
-        <SelectValue :placeholder="`${selectedItem?.name ?? placeholder ?? 'Select item'}`" />
+      <SelectValue :placeholder="`${selectedItem?.name ?? placeholder ?? 'Select item'}`" />
     </SelectTrigger>
     <SelectContent>
-        <SelectGroup v-for="[_groupableIndex, groupable] in Object.entries(groupableArray(convertable))" :key="_groupableIndex">
-            <SelectLabel class="bg-gray-300">{{ _groupableIndex }}</SelectLabel>
-            <SelectItem v-for="(item, _itemIndex) in groupable" :key="_itemIndex" :value="item.id">
-                <div class="flex items-center">
-                  <span v-if="item.color" class="inline-block w-3 h-3 mr-2 rounded-full" :style="{ backgroundColor: item.color }"></span>
-                  {{ item.name }}
-                </div>
-            </SelectItem>
-        </SelectGroup>
+      <SelectGroup v-for="[_groupableIndex, groupable] in Object.entries(groupableArray(convertable))" :key="_groupableIndex">
+        <SelectLabel class="bg-gray-300">{{ _groupableIndex }}</SelectLabel>
+        <SelectItem v-for="(item, _itemIndex) in groupable" :key="_itemIndex" :value="item.id">
+          <div class="flex items-center">
+            <span v-if="item.color" class="mr-2 inline-block h-3 w-3 rounded-full" :style="{ backgroundColor: item?.color ?? 'transparent' }"></span>
+            {{ item.name }}
+          </div>
+        </SelectItem>
+      </SelectGroup>
     </SelectContent>
   </Select>
 </template>
