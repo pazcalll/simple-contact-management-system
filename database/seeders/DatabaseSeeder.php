@@ -20,11 +20,20 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        $this->call([
+        $callables = [
             RoleSeeder::class,
             UserSeeder::class,
             LeadStatusSeeder::class,
-            LeadSeeder::class,
-        ]);
+        ];
+
+        if (config('app.env') != 'production') {
+            $callables = [
+                ...$callables,
+                LeadSeeder::class,
+                StaffSeeder::class,
+            ];
+        }
+
+        $this->call($callables);
     }
 }
