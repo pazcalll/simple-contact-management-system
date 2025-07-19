@@ -58,7 +58,7 @@ const handleAddUser = (e: Event) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow v-for="user in pagination.data" :key="user.id">
+              <TableRow class="cursor-pointer" v-for="user in pagination.data" :key="user.id" @click="router.visit(`/admins/users/${user.id}`)">
                 <TableCell>{{ user.name }}</TableCell>
                 <TableCell>{{ user.email }}</TableCell>
                 <TableCell>{{ user.roles[0]?.name }}</TableCell>

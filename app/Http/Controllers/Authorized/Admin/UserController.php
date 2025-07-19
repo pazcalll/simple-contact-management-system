@@ -6,12 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admins\StoreUserRequest;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class UserController extends Controller
 {
+    public function __construct(
+        private UserService $userService = new UserService(),
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -62,9 +67,14 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(User $user)
     {
         //
+        $uplines = $this->userService->getAllUplines($user);
+        return Inertia::render('authorized/admin/UserDetails', [
+            'user' => $user->load('roles'),
+            'uplines' => $uplines,
+        ]);
     }
 
     /**
