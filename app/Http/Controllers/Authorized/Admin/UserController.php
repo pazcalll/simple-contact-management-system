@@ -115,7 +115,7 @@ class UserController extends Controller
     
             unset($validated['role_id']);
             $user->update($validated);
-            $user->assignRole($role);
+            $user->syncRoles([$role->id]);
     
             return redirect()->route('admins.users.index')->with('success', 'User data has been updated');
         } catch (\Throwable $th) {
