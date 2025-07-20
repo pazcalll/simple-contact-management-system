@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\AssignedLead;
 use App\Models\Lead;
+use App\Models\LeadNote;
+use App\Models\LeadStatus;
 use App\Models\Role;
 use App\Traits\Services\Lead\CanUpdateStatus;
 use Illuminate\Support\Facades\Auth;
@@ -15,10 +17,7 @@ class LeadService
     /**
      * Create a new class instance.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct() {}
 
     public function getPagination($page = 1, $length = 15, bool $isQueryOnly = false)
     {
@@ -155,9 +154,17 @@ class LeadService
 
     public function updateLeadStatuses(array $leadIds, int $leadStatusId): static
     {
+        Lead::whereIn('id', $leadIds)->update([
+            'lead_status_id' => $leadStatusId,
+        ]);
         foreach ($leadIds as $key => $leadId) {
-            Lead::whereIn('id', $leadIds)->update([
-                'lead_status_id' => $leadStatusId,
+            $lead = Lead::findOrFail($leadId);
+            $leadStatus = LeadStatus::findOrFail($leadStatusId);
+
+            LeadNote::create([
+                'lead_id' => $lead->id,
+                'user_id' => Auth::id(),
+                'note' => "Lead {$lead->name} status updated to {$leadStatus->name}",
             ]);
         }
         return $this;

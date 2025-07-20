@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Authorized\StoreLeadNoteRequest;
 use App\Models\Lead;
 use App\Services\Manager\LeadNoteService;
+use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -45,15 +46,24 @@ class LeadNoteController extends Controller
     public function store(Lead $lead, StoreLeadNoteRequest $request)
     {
         //
-        $this->leadNoteService->create(
-            $lead,
-            $request->user(),
-            $request->note
-        );
+        try {
+            DB::beginTransaction();
+            $this->leadNoteService->create(
+                $lead,
+                $request->user(),
+                $request->note
+            );
+            DB::commit();
 
-        return redirect()
-            ->route('managers.leads.index')
-            ->with('success', 'Lead note created successfully.');
+            return redirect()
+                ->route('managers.leads.index')
+                ->with('success', 'Lead note created successfully.');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            // Log the error or handle it as needed
+            return redirect()->back()->with('error', 'Failed to create lead note: ' . $th->getMessage());
+        }
+
     }
 
     /**
