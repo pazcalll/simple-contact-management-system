@@ -5,11 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const props = defineProps<{
   items: { id: number; name: string }[];
   placeholder: 'Select an item' | string;
+  selectedId?: number | null;
 }>();
 
 const emit = defineEmits(['update:selected-id']);
 
-const selectedValue = ref();
+const selectedValue = ref(props.selectedId || null);
 
 watch(selectedValue, (newValue) => {
   emit('update:selected-id', newValue);

@@ -4,16 +4,17 @@ namespace App\Http\Requests\Admins;
 
 use App\Models\Role;
 use App\Models\User;
+use Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreUserRequest extends FormRequest
+class UpdateUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user()->roles[0]->name === Role::ROLE_ADMIN;
+        return Auth::user()->roles[0]->name === Role::ROLE_ADMIN;
     }
 
     /**
@@ -23,12 +24,20 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $user = User::withCount(['downlines', 'leads'])->find($this->route('user'));
+        $executableFunction = null;
+        if ($user->downlines_count > 0 && $user->leads_count > 0) {
+            $executableFunction = function ($attribute, $value, $fail) {
+                $fail('Cannot update user with downlines and leads assigned.');
+            };
+        }
+
         return [
             'name' => ['required', 'max:40', 'min:3'],
-            'email' => ['required', 'email', 'max:40', 'min:3', 'unique:users,email'],
-            'password' => ['required', 'confirmed', 'max:16', 'min:6'],
+            'email' => ['required', 'email', 'max:40', 'min:3', 'unique:users,email,' . $this->route('user')],
+            'password' => ['nullable', 'confirmed', 'max:16', 'min:6'],
             'mobile' => ['required', 'numeric', 'starts_with:8', 'max_digits:11'],
-            'role_id' => ['required', 'exists:roles,id'],
+            'role_id' => ['required', 'exists:roles,id', $executableFunction],
             'upline_id' => [
                 'required',
                 'exists:users,id',

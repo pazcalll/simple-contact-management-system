@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Authorized\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admins\StoreUserRequest;
+use App\Http\Requests\Admins\UpdateUserRequest;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -70,10 +70,14 @@ class UserController extends Controller
     public function show(User $user)
     {
         //
-        $uplines = $this->userService->getAllUplines($user);
+        $upline = $user->upline;
+        $possibleUplines = User::query()->role($upline->roles()->pluck('name')[0])->get();
+        $roles = Role::get();
         return Inertia::render('authorized/admin/UserDetails', [
             'user' => $user->load('roles'),
-            'uplines' => $uplines,
+            'upline' => $upline,
+            'roles' => $roles,
+            'possibleUplines' => $possibleUplines,
         ]);
     }
 
@@ -88,9 +92,35 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateUserRequest $request, string $id)
     {
         //
+        try {
+            $validated = $request->validated();
+    
+            if ($validated['password'] !== null || $validated['password'] !== '') {
+                $validated['password'] = bcrypt($validated['password']);
+                unset($validated['password_confirmation']);
+            } else {
+                unset($validated['password']);
+                unset($validated['password_confirmation']);
+            }
+    
+            $role = Role::find($validated['role_id']);
+    
+            $user = User::where('id', $id)->firstOrFail();
+            if (!$user) {
+                return redirect()->back()->with('error', 'User not found');
+            }
+    
+            unset($validated['role_id']);
+            $user->update($validated);
+            $user->assignRole($role);
+    
+            return redirect()->route('admins.users.index')->with('success', 'User data has been updated');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Failed to update user data');
+        }
     }
 
     /**

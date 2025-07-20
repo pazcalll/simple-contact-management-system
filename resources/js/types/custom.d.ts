@@ -19,6 +19,7 @@ type TRole = {
 type TUser = User & {
     roles: TRole[];
     mobile: string;
+    upline_id?: number;
 };
 
 type TPagination<T> = {

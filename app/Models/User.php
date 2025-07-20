@@ -64,6 +64,6 @@ class User extends Authenticatable
 
     public function leads()
     {
-        return $this->belongsToMany(Lead::class, 'assignees');
+        return $this->belongsToMany(Lead::class, 'assigned_leads');
     }
 }
