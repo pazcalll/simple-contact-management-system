@@ -71,7 +71,7 @@ class UserController extends Controller
     {
         //
         $upline = $user->upline;
-        $possibleUplines = User::query()->role($upline->roles()->pluck('name')[0])->get();
+        $possibleUplines = User::query()->role(@$upline?->roles()?->pluck('name')[0])->get();
         $roles = Role::get();
         return Inertia::render('authorized/admin/UserDetails', [
             'user' => $user->load('roles'),
