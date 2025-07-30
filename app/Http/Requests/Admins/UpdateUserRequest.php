@@ -32,6 +32,9 @@ class UpdateUserRequest extends FormRequest
             };
         }
 
+        $role = Role::find(request()->post('role_id'));
+        $isUplineRequired = $role->name !== Role::ROLE_MANAGER && $role->name !== Role::ROLE_ADMIN;
+
         return [
             'name' => ['required', 'max:40', 'min:3'],
             'email' => ['required', 'email', 'max:40', 'min:3', 'unique:users,email,' . $this->route('user')],
@@ -39,7 +42,7 @@ class UpdateUserRequest extends FormRequest
             'mobile' => ['required', 'numeric', 'starts_with:8', 'max_digits:11'],
             'role_id' => ['required', 'exists:roles,id', $executableFunction],
             'upline_id' => [
-                'required',
+                $isUplineRequired ? 'required' : 'nullable',
                 'exists:users,id',
                 function ($attribute, $value, $fail) {
                     $role = Role::find(request()->post('role_id'));

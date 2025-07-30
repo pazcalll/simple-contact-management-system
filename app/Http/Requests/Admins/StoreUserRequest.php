@@ -24,7 +24,7 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         $role = Role::find(request()->post('role_id'));
-        $isUplineRequired = $role->name !== Role::ROLE_MANAGER || $role->name !== Role::ROLE_ADMIN;
+        $isUplineRequired = $role->name !== Role::ROLE_MANAGER && $role->name !== Role::ROLE_ADMIN;
 
         return [
             'name' => ['required', 'max:40', 'min:3'],
@@ -33,7 +33,7 @@ class StoreUserRequest extends FormRequest
             'mobile' => ['required', 'numeric', 'starts_with:8', 'max_digits:11'],
             'role_id' => ['required', 'exists:roles,id'],
             'upline_id' => [
-                $isUplineRequired ? 'nullable' : 'required',
+                $isUplineRequired ? 'required' : 'nullable',
                 'exists:users,id',
                 function ($attribute, $value, $fail) {
                     $role = Role::find(request()->post('role_id'));

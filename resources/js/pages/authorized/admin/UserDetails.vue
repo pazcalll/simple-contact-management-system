@@ -17,6 +17,7 @@ import SelectContent from '@/components/ui/select/SelectContent.vue';
 import SelectGroup from '@/components/ui/select/SelectGroup.vue';
 import SelectItem from '@/components/ui/select/SelectItem.vue';
 import { TRole, TUser } from '@/types/custom';
+import { toast } from 'vue-sonner';
 
 const page = usePage<{
   user: TUser;
@@ -40,7 +41,18 @@ const selectedRole = ref<TRole>(page.props.user?.roles[0]);
 const selectedUpline = ref<TUser | undefined>(page.props.upline);
 
 const handlerSubmit = () => {
-  form.submit('patch', '/admins/users/' + page.props.user.id);
+  form.submit('patch', '/admins/users/' + page.props.user.id, {
+    onError: (errors) => {
+      let message = '';
+      for (const [, value] of Object.entries(errors)) {
+        message = `${value}`;
+      }
+      toast.error(message, {
+        duration: 6000,
+        class: '!bg-red-500 !text-white',
+      });
+    },
+  });
 };
 
 const handlerRoleSelected = async (value: unknown) => {
@@ -62,7 +74,7 @@ const handlerRoleSelected = async (value: unknown) => {
         <form @submit.prevent="handlerSubmit">
           <Card class="block w-[26rem] md:w-[40rem]">
             <CardHeader class="w-full text-center">
-              <h2 class="text-2xl font-bold">Add User</h2>
+              <h2 class="text-2xl font-bold">Update User</h2>
             </CardHeader>
             <CardContent>
               <div class="mx-3 my-5 space-y-2">

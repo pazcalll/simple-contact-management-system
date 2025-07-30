@@ -54,6 +54,7 @@ class UserController extends Controller
         //
         $validated = $request->validated();
         $validated['password'] = bcrypt($validated['password']);
+        $validated['email_verified_at'] = now();
         unset($validated['password_confirmation']);
 
         $role = Role::find($validated['role_id']);
