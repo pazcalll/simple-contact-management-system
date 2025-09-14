@@ -16,110 +16,96 @@ import { CopyCheckIcon } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 
 const props = defineProps<{
-    submissionAlert: TSubmissionAlert;
+  submissionAlert: TSubmissionAlert;
 }>();
 
 const submissionAlert = ref<TSubmissionAlert>({
-    isShow: props.submissionAlert.isShow,
-    message: props.submissionAlert.message,
+  isShow: props.submissionAlert.isShow,
+  message: props.submissionAlert.message,
 });
 
 const emit = defineEmits(['update:alert']);
 
 watch([submissionAlert], ([newSubmissionAlert]) => {
-    console.log('Submission Alert Updated:', newSubmissionAlert);
-    console.log('oldSubmissionAlert:', props.submissionAlert);
-    emit('update:alert', newSubmissionAlert);
+  console.log('Submission Alert Updated:', newSubmissionAlert);
+  console.log('oldSubmissionAlert:', props.submissionAlert);
+  emit('update:alert', newSubmissionAlert);
 });
 
 const file = ref<File | null>(null);
 const isOpen = ref(false);
 
 const form = useForm({
-    file: null as File | null,
+  file: null as File | null,
 });
 
 function onFileChange(event: Event) {
-    const target = event.target as HTMLInputElement;
-    if (target.files && target.files.length > 0) {
-        file.value = target.files[0];
-    } else {
-        file.value = null;
-    }
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    file.value = target.files[0];
+  } else {
+    file.value = null;
+  }
 }
 
 function submit() {
-    if (file.value) {
-        form.file = file.value;
-        form.post('/admins/leads/import', {
-            onSuccess: () => {
-                // Reset the file input after successful submission
-                file.value = null;
-                // Optionally, you can close the dialog or reset the form
-                isOpen.value = false;
-                submissionAlert.value = {
-                    isShow: true,
-                    message: 'Leads imported successfully!',
-                };
-            },
-            onError: (errors) => {
-                console.error('Import failed:', errors);
-            },
-        });
-    } else {
-        alert('Please select a CSV file to upload.');
-    }
+  if (file.value) {
+    form.file = file.value;
+    form.post('/admins/leads/import', {
+      onSuccess: () => {
+        // Reset the file input after successful submission
+        file.value = null;
+        // Optionally, you can close the dialog or reset the form
+        isOpen.value = false;
+        submissionAlert.value = {
+          isShow: true,
+          message: 'Leads imported successfully!',
+        };
+      },
+      onError: (errors) => {
+        console.error('Import failed:', errors);
+      },
+    });
+  } else {
+    alert('Please select a CSV file to upload.');
+  }
 }
-
 </script>
 
 <template>
-    <Dialog :open="isOpen" @update:open="isOpen = $event">
-        <DialogTrigger>
-            <Button class="w-full" variant="secondary">
-                <CopyCheckIcon></CopyCheckIcon>
-                Import Leads
-            </Button>
-        </DialogTrigger>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Import Leads</DialogTitle>
-                <DialogDescription>
-                    Put your excel file here to import leads. The file should be in CSV format.
-                </DialogDescription>
-            </DialogHeader>
-            <div class="space-y-4">
-                <p class="text-sm text-gray-600">
-                    Before importing, please ensure that your CSV file is formatted correctly.
-                    You can download the templates below to help you format your data correctly:
-                </p>
-                <div class="space-x-2 space-y-2 w-full">
-                    <Button class="bg-blue-500 hover:bg-blue-600 text-white">
-                        <a href="/storage/leads-upload-template.csv" class="w-full" target="_blank">
-                            Download Leads Template
-                        </a>
-                    </Button>
-                </div>
-                <div class="space-y-2">
-                    <Label>Upload CSV file</Label>
-                    <Input
-                        type="file"
-                        accept=".csv"
-                        @change="onFileChange"
-                        class="mt-2"
-                    />
-                </div>
-            </div>
-            <DialogFooter>
-                <DialogClose>
-                    <Button type="button" variant="secondary">
-                        Close
-                    </Button>
-                </DialogClose>
-                <Button variant="default" @click="submit" :disabled="!file">
-                    Submit
-                </Button>
-            </DialogFooter>
-        </DialogContent>
-    </Dialog>
+  <Dialog :open="isOpen" @update:open="isOpen = $event">
+    <DialogTrigger>
+      <Button class="w-full" variant="secondary">
+        <CopyCheckIcon></CopyCheckIcon>
+        Import Leads
+      </Button>
+    </DialogTrigger>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Import Leads</DialogTitle>
+        <DialogDescription> Put your excel file here to import leads. The file should be in CSV format. </DialogDescription>
+      </DialogHeader>
+      <div class="space-y-4">
+        <p class="text-sm text-gray-600">
+          Before importing, please ensure that your CSV file is formatted correctly. You can download the templates below to help you format your data
+          correctly:
+        </p>
+        <div class="w-full space-y-2 space-x-2">
+          <Button class="bg-blue-500 text-white hover:bg-blue-600">
+            <a href="/leads-upload-template.csv" class="w-full" target="_blank"> Download Leads Template </a>
+          </Button>
+        </div>
+        <div class="space-y-2">
+          <Label>Upload CSV file</Label>
+          <Input type="file" accept=".csv" @change="onFileChange" class="mt-2" />
+        </div>
+      </div>
+      <DialogFooter>
+        <DialogClose>
+          <Button type="button" variant="secondary"> Close </Button>
+        </DialogClose>
+        <Button variant="default" @click="submit" :disabled="!file"> Submit </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
