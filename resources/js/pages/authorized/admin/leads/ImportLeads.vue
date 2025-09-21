@@ -92,7 +92,7 @@ function submit() {
         </p>
         <div class="w-full space-y-2 space-x-2">
           <Button class="bg-blue-500 text-white hover:bg-blue-600">
-            <a href="/leads-upload-template.csv" class="w-full" target="_blank"> Download Leads Template </a>
+            <a href="/leads/template" class="w-full" target="_blank"> Download Leads Template </a>
           </Button>
         </div>
         <div class="space-y-2">
