@@ -17,6 +17,7 @@ import { ref, watch } from 'vue';
 
 const props = defineProps<{
   submissionAlert: TSubmissionAlert;
+  onSubmissionSuccess: () => unknown;
 }>();
 
 const submissionAlert = ref<TSubmissionAlert>({
@@ -61,6 +62,7 @@ function submit() {
           isShow: true,
           message: 'Leads imported successfully!',
         };
+        props.onSubmissionSuccess();
       },
       onError: (errors) => {
         console.error('Import failed:', errors);

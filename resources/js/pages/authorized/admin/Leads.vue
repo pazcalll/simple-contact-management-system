@@ -183,6 +183,11 @@ const handleImportLeadsAlert = () => {
   submissionAlertState.value.message = 'Leads imported successfully!';
 };
 
+const handleImportLeadsSuccess = async () => {
+  const data = await handleReloadAJAX({ pagination: pagination, endpoint: '/admins/leads' });
+  pagination.value = data as TPagination<TLead[]>;
+};
+
 const nextAjax = async () => {
   const response = await handleNextAJAX({ pagination: pagination, endpoint: '/admins/leads' });
   if (response == undefined) return;
@@ -301,7 +306,7 @@ const prevAjax = async () => {
             </div>
           </template>
         </BulkAssignDialog>
-        <ImportLeads :submission-alert="submissionAlertState" @update:alert="handleImportLeadsAlert" />
+        <ImportLeads :submission-alert="submissionAlertState" @update:alert="handleImportLeadsAlert" @submission-success="handleImportLeadsSuccess" />
       </div>
       <div class="w-full rounded-lg border">
         <Table class="w-full">

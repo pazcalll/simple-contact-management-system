@@ -27,8 +27,10 @@ class UpdateUserRequest extends FormRequest
         $user = User::withCount(['downlines', 'leads'])->find($this->route('user'));
         $executableFunction = null;
         if ($user->downlines_count > 0 || $user->leads_count > 0) {
-            $executableFunction = function ($attribute, $value, $fail) {
-                $fail('Cannot update user with downlines or leads assigned.');
+            $executableFunction = function ($attribute, $value, $fail) use ($user) {
+                if ($value != $user->roles[0]->id) {
+                    $fail('Cannot update user with downlines or leads assigned.');
+                }
             };
         }
 
